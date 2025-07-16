@@ -6,21 +6,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:background="#FEF8F1">
+    android:background="@color/backgroundColor">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/main_BTN_signOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="sign out"
-        tools:ignore="MissingConstraints" />
+        android:textColor="@color/black"
+        tools:ignore="MissingConstraints"
+        android:background="@color/transparent"/>
+
+
+    <ImageButton
+        android:id="@+id/main_BTN_filters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/filters_icon"
+        android:background="@color/transparent"
+        tools:ignore="MissingConstraints"
+        app:tint="#E21D1E1F"
+        android:layout_below="@id/main_INPUT_search"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/main_INPUT_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="search activities"
+        android:layout_below="@id/main_BTN_signOut" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/main_RV_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="5dp"
-        android:layout_below="@id/main_BTN_signOut"
-        tools:listitem="@layout/item" />
+        android:layout_below="@id/main_BTN_filters"
+        tools:listitem="@layout/item"/>
 
 </RelativeLayout>

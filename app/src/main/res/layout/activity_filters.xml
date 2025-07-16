@@ -5,13 +5,269 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".filtersActivity">
+    tools:context=".FiltersActivity"
+    android:background="@color/backgroundColor">
 
-    <com.google.android.material.textfield.TextInputEditText
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/filters_BTN_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_marginStart="5dp"
+        android:src="@drawable/outline_arrow_back_ios_new_24"
+        android:background="@color/transparent"
+        android:layout_alignParentTop="true"/>
+
+    <TextView
+        android:id="@+id/filters_TXT_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:layout_marginEnd="@dimen/default_margin"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_alignParentEnd="true"
+        android:text="Reset all"
+        android:textSize="@dimen/textSize"
+        android:clickable="true"
+        android:textColor="@color/textColor"/>
+
+    <TextView
+        android:id="@+id/filters_TXT_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Filters"
+        android:layout_below="@id/filters_BTN_back"
+        android:textSize="32sp"
+        android:layout_centerInParent="true"/>
+
+    <LinearLayout
+        android:id="@+id/filters_LAYOUT_main_filters"
+        android:layout_margin="@dimen/default_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/filters_TXT_title">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Location"
+        android:textSize="26dp"
+        android:textStyle="bold" />
+
+    <AutoCompleteTextView
+        android:id="@+id/filters_TEXT_locationSearch"
+        android:hint="Location"
+        android:textStyle="bold"
         android:inputType="text"
-        android:hint="search activities"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Level"
+        android:textSize="26dp"
+        android:textStyle="bold" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activity"
+        android:textSize="26dp"
+        android:textStyle="bold" />
+    <LinearLayout
+        android:id="@+id/filters_CHECKBOX_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Price Range"
+        android:textSize="26dp"
+        android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:weightSum="2">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:gravity="center">
+        <TextView
+            android:id="@+id/filters_LBL_min"
+            android:layout_height="wrap_content"
+            android:text="Min"
+            android:textSize="@dimen/textSize"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:boxBackgroundMode="none"
+        android:gravity="center">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/filters_TXT_min_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:padding="0dp"
+            android:text="0₪"
+            android:gravity="center"
+            android:textSize="@dimen/textSize" />
+    </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+<!--        <Space-->
+<!--            android:layout_width="16dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            />-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="—"
+            android:textSize="@dimen/textSize"
+            android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/filters_LBL_max"
+                android:layout_height="wrap_content"
+                android:text="Max"
+                android:textSize="@dimen/textSize"
+                android:textStyle="bold"
+                android:layout_width="wrap_content"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:boxBackgroundMode="none"
+                android:gravity="center">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/filters_TXT_max_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:padding="0dp"
+                android:text="10000₪"
+                android:gravity="center"
+                android:textSize="@dimen/textSize" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+        </LinearLayout>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/filters_SLIDER_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:values="@array/slider_values"
+        android:layout_marginTop="12dp"
+        android:stepSize="1"
+        android:valueFrom="0"
+        android:valueTo="10000"
+        app:trackHeight="4dp"
+        app:thumbColor="@color/orange"
+        app:haloColor="@color/orange"
+        app:tickColor="@color/orange"
+        app:trackColor="@color/orange"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date Range"
+            android:textSize="26dp"
+            android:textStyle="bold"
+            />
+        <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/filters_TXT_start_date"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:drawableEnd="@drawable/outline_calendar_today_24"
+            android:text="Start Date"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:textSize="@dimen/textSize"
+            android:layout_weight="1"
+            />
+
+        <TextView
+            android:id="@+id/filters_TXT_end_date"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:drawableEnd="@drawable/outline_calendar_today_24"
+            android:text="End Date"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:textSize="@dimen/textSize"
+            android:layout_weight="1"
+            />
+
+        </LinearLayout>
+<!--        <LinearLayout-->
+<!--            xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--            xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--            android:orientation="vertical"-->
+<!--            android:padding="24dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent">-->
+
+<!--            <com.google.android.material.textfield.TextInputLayout-->
+<!--                android:id="@+id/dateInputLayout"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:hint="DOB"-->
+<!--                app:endIconDrawable="@drawable/outline_calendar_today_24"-->
+<!--                app:endIconMode="custom" />-->
+
+<!--            <com.google.android.material.textfield.TextInputEditText-->
+<!--                android:id="@+id/dateEditText"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:inputType="none"-->
+<!--                android:focusable="false"-->
+<!--                android:clickable="true"-->
+<!--                android:hint="start date" />-->
+<!--        </LinearLayout>-->
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/filters_BTN_apply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Apply"
+        android:textSize="@dimen/textSize"
+        android:backgroundTint="@color/orange"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/filters_LAYOUT_main_filters"/>
 
 
 </RelativeLayout>

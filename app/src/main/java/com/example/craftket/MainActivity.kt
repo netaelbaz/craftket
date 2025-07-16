@@ -4,27 +4,39 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.craftket.Models.Activity
+import com.example.craftket.Models.Filters
 import com.example.craftket.adapters.ActivityAdapter
 import com.example.craftket.databinding.ActivityMainBinding
+import com.example.craftket.interfaces.ActivityCallback
+import com.example.craftket.utilites.Constants
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
+import com.google.gson.Gson
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: ActivityAdapter
-    var activityList = mutableListOf<Activity>()
+    private var activityList = mutableListOf<Activity>()
+    private lateinit var citiesList: List<String>
+    private lateinit var activityTypesList: List<String>
+    private lateinit var filtersLauncher: ActivityResultLauncher<Intent>
+    val gson = Gson()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContentView(binding.root)
-//        setContentView(R.layout.activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -43,7 +54,12 @@ class MainActivity : AppCompatActivity() {
         adapter = ActivityAdapter(mutableListOf())
         binding.mainRVList.layoutManager = LinearLayoutManager(this)
         binding.mainRVList.adapter = adapter
-//        val activityAdapter = ActivityAdapter(activityList)
+        adapter.activityCallback = object : ActivityCallback {
+            override fun moreInfoClicked(activity: Activity, position: Int) {
+                // Handle "more info" button click
+                openMoreInfo(activity)
+            }
+        }
     }
 
     private fun getDatabaseReference(path: String): DatabaseReference {
@@ -51,8 +67,22 @@ class MainActivity : AppCompatActivity() {
         return database.getReference(path)
     }
 
+    private fun getStorageReference() {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("tennis.jpg") // replace with your path
+        imageRef.downloadUrl.addOnSuccessListener { uri ->
+            println("File download URL: $uri")
+        }.addOnFailureListener { exception ->
+            println("Failed to get download URL: ${exception.message}")
+        }
+    }
+
     private fun getMessageFromDB() {
         val ref = getDatabaseReference("activities")
+        val database = FirebaseDatabase.getInstance()
+        val myRef = database.getReference("your-path")
+        Log.d("Firebase", "Database URL: ${database.reference.toString()}")
+        Log.d("Firebase", "Reference path: ${myRef.toString()}")
         ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 activityList = mutableListOf<Activity>()
@@ -61,7 +91,20 @@ class MainActivity : AppCompatActivity() {
                     activity?.let { activityList.add(it) }
                 }
                 adapter.updateData(activityList)
+
+                citiesList = activityList
+                    .map { it.location.city }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+                    .sorted()
+
+                activityTypesList = activityList
+                    .map { it.field }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+                    .sorted()
             }
+
 
             override fun onCancelled(error: DatabaseError) {
                 // Failed to read value
@@ -71,17 +114,22 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun initViews() {
         binding.mainBTNSignOut.setOnClickListener {
             AuthUI.getInstance()
                 .signOut(this)
                 .addOnCompleteListener {
-                    switchActivity()
+                    goBackToLoginActivity()
                 }
         }
 
         getMessageFromDB()
+
+        binding.mainBTNFilters.setOnClickListener {
+            openFiltersActivity()
+        }
+
+        registerForFilters()
 
 //        binding.mainBTNSave.setOnClickListener {
 //            val myRef = getDatabaseReference(Constants.DB.MESSAGE_REF)
@@ -91,8 +139,69 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun switchActivity() {
+
+    private fun registerForFilters() {
+        filtersLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    val data = result.data
+                    val filtersAsJson = data?.getStringExtra("FILTERS")
+                    if (filtersAsJson != null) {
+                        val filters = gson.fromJson(filtersAsJson, Filters::class.java)
+                        Log.d("Filters", filters.toString())
+                        applyFilters(filters)
+                    }
+                }
+            }
+    }
+
+    private fun goBackToLoginActivity() {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
+    }
+
+    private fun openMoreInfo(activity: Activity) {
+        val intent = Intent(this, ItemInfoActivity::class.java)
+        val activityAsJson = gson.toJson(activity)
+        intent.putExtra(Constants.BundleKeys.ACTIVITY, activityAsJson)
+        startActivity(intent)
+    }
+
+    private fun openFiltersActivity() {
+        val intent = Intent(this, FiltersActivity::class.java)
+        var bundle = Bundle()
+        bundle.putStringArrayList(Constants.BundleKeys.CITIES_LIST, ArrayList(citiesList))
+        bundle.putStringArrayList(Constants.BundleKeys.TYPES_LIST, ArrayList(activityTypesList))
+        intent.putExtras(bundle)
+        filtersLauncher.launch(intent)
+    }
+
+    private fun applyFilters(filters: Filters) {
+        val filteredList = activityList.filter { activity ->
+
+            val locationMatches = filters.selectedCity.isNullOrBlank() || activity.location.city == filters.selectedCity
+            val typesMatches = filters.selectedTypes.isNullOrEmpty() || filters.selectedTypes.contains(activity.field)
+            val minPriceMatches = filters.minPrice == null || activity.price >= filters.minPrice
+            val maxPriceMatches = filters.maxPrice == null || activity.price <= filters.maxPrice
+
+//            val startDateMillis = filters.startDate
+//            val endDateMillis = filters.endDate
+//            val dateMatches = if (startDateMillis != null && endDateMillis != null) {
+//                // Example: true if any schedule overlaps with filter date range
+//                activity.schedule.any { timeSlot ->
+//                    val slotStart = timeSlot.startDateMillis
+//                    val slotEnd = timeSlot.endDateMillis
+//                    // Overlap check:
+//                    slotStart <= endDateMillis && slotEnd >= startDateMillis
+//                }
+//            } else {
+//                true // no date filter applied
+//            }
+            val dateMatches = true // change later
+
+            locationMatches && typesMatches && minPriceMatches && maxPriceMatches && dateMatches
+        }
+
+        adapter.updateData(filteredList)
     }
 }

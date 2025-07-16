@@ -58,4 +58,17 @@ dependencies {
 
     //Glide
     implementation(libs.glide)
+
+    // storage
+    // Import the BoM for the Firebase platform
+    implementation(platform(libs.firebase.bom.v33160))
+
+    // Add the dependency for the Cloud Storage library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation(libs.firebase.storage)
+
+    // GSON:
+    implementation(libs.gson)
+    implementation(libs.location)
+    implementation(libs.google.maps)
 }

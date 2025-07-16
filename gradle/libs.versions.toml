@@ -1,6 +1,7 @@
 [versions]
 agp = "8.9.2"
 firebaseBom = "33.15.0"
+firebaseBomVersion = "33.16.0"
 firebaseUiAuth = "9.0.0"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
@@ -13,10 +14,15 @@ material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 gs = "4.4.2"
+gson = "2.13.1"
+gms = "21.3.0"
+google-maps = "18.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom-v33160 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
+firebase-storage = { module = "com.google.firebase:firebase-storage" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -24,11 +30,14 @@ firebase-database = { module = "com.google.firebase:firebase-database" }
 firebase-ui-auth = { module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUiAuth" }
 google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+location = { group = "com.google.android.gms", name="play-services-location", version.ref = "gms"}
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+google-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "google-maps" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 [plugins]

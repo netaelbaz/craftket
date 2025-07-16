@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ItemInfoActivity"
+    android:orientation="vertical"
+    android:background="@color/backgroundColor">
+
+    <Toolbar
+        android:id="@+id/info_TOOL_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:navigationIcon="@drawable/outline_arrow_back_ios_new_24"/>
+
+    <TextView
+        android:layout_margin="@dimen/default_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/info_TXT_activity_name"
+        android:textSize="40dp"
+        android:textColor="@color/black"
+        android:layout_gravity="center"/>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin">
+    <TextView
+        android:layout_margin="@dimen/default_margin"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:background="@drawable/price_tag"
+        android:id="@+id/info_TXT_price"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="@dimen/textSize"
+        android:textColor="@color/black"/>
+    <ImageButton
+        android:id="@+id/info_BTN_facebook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/facebook"
+        android:background="@color/transparent"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        />
+
+    <ImageButton
+        android:id="@+id/info_BTN_instagram"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/instagram"
+        android:background="@color/transparent"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        />
+    </LinearLayout>
+    <TextView
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Where?"
+        android:textColor="@color/black"
+        android:textSize="22sp"
+        android:textStyle="bold"/>
+    <TextView
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/textSize"
+        android:id="@+id/info_TXT_address"
+        android:textColor="@color/black" />
+
+    <fragment
+        android:id="@+id/info_FRAGMENT_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
+
+
+    <TextView
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel Until"
+        android:textColor="@color/black"
+        android:textSize="22sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/info_TXT_cancel_time"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginTop="5dp"
+        android:textSize="@dimen/textSize"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/info_BTN_register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/orange"
+        android:text="Register For Class"
+        android:textSize="@dimen/textSize"
+        android:layout_margin="@dimen/default_margin"
+        android:textColor="@color/black"
+        android:layout_gravity="center"/>
+
+</LinearLayout>
