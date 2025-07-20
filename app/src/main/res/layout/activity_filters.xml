@@ -8,6 +8,7 @@
     tools:context=".FiltersActivity"
     android:background="@color/backgroundColor">
 
+
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/filters_BTN_back"
         android:layout_width="wrap_content"
@@ -41,6 +42,15 @@
         android:textSize="32sp"
         android:layout_centerInParent="true"/>
 
+    <ScrollView
+        android:id="@+id/filters_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/filters_TXT_title"
+        android:layout_above="@id/filters_BTN_apply"
+        android:scrollbars="none"
+        android:overScrollMode="never">
+
     <LinearLayout
         android:id="@+id/filters_LAYOUT_main_filters"
         android:layout_margin="@dimen/default_margin"
@@ -53,7 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Location"
-        android:textSize="26dp"
+        android:textSize="@dimen/filter_title_size"
         android:textStyle="bold" />
 
     <AutoCompleteTextView
@@ -76,7 +86,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Level"
-        android:textSize="26dp"
+        android:textSize="@dimen/filter_title_size"
         android:textStyle="bold" />
     <LinearLayout
         android:id="@+id/filters_LAYOUT_levels"
@@ -112,23 +122,18 @@
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
             android:background="@color/gray" />
-    <TextView
+        <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Activity"
-        android:textSize="26dp"
+        android:textSize="@dimen/filter_title_size"
         android:textStyle="bold" />
-        <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:fillViewport="true">
-    <LinearLayout
-        android:id="@+id/filters_CHECKBOX_group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-    </LinearLayout>
-        </ScrollView>
+        <LinearLayout
+            android:id="@+id/filters_CHECKBOX_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        </LinearLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -139,7 +144,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Price Range"
-        android:textSize="26dp"
+        android:textSize="@dimen/filter_title_size"
         android:textStyle="bold" />
     <LinearLayout
         android:layout_width="match_parent"
@@ -254,7 +259,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Date Range"
-            android:textSize="26dp"
+            android:textSize="@dimen/filter_title_size"
             android:textStyle="bold"
             />
         <LinearLayout
@@ -290,33 +295,9 @@
             />
 
         </LinearLayout>
-<!--        <LinearLayout-->
-<!--            xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--            xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--            android:orientation="vertical"-->
-<!--            android:padding="24dp"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent">-->
-
-<!--            <com.google.android.material.textfield.TextInputLayout-->
-<!--                android:id="@+id/dateInputLayout"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:hint="DOB"-->
-<!--                app:endIconDrawable="@drawable/outline_calendar_today_24"-->
-<!--                app:endIconMode="custom" />-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/dateEditText"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:inputType="none"-->
-<!--                android:focusable="false"-->
-<!--                android:clickable="true"-->
-<!--                android:hint="start date" />-->
-<!--        </LinearLayout>-->
 
     </LinearLayout>
+    </ScrollView>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/filters_BTN_apply"
@@ -326,8 +307,11 @@
         android:textColor="@color/black"
         android:textSize="@dimen/textSize"
         android:backgroundTint="@color/orange"
-        android:layout_centerInParent="true"
-        android:layout_below="@id/filters_LAYOUT_main_filters"/>
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_centerHorizontal="true"/>
+<!--        android:layout_below="@id/filters_scrollview"/>-->
 
 
 </RelativeLayout>

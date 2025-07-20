@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.CalendarView.OnDateChangeListener
 import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -83,19 +82,21 @@ class ClassRegisterActivity : AppCompatActivity() {
                 .toast("You are already subscribed to that time slot")
             binding.registerBTNPick.isEnabled = false
         }
+        else {
+            binding.registerBTNPick.isEnabled = true
+            val placesLeft = slot.capacity - slot.registeredUsers.size
+            binding.registerTXTPlacesLeft.text = buildString {
+                append(placesLeft)
+                append(" places left")
+            }
+            binding.registerTXTNoTimeSelected.visibility = View.INVISIBLE
+            binding.registerTXTPlacesLeft.visibility = View.VISIBLE
+            selectedSlot = index
+            selectedButton?.let { it.strokeColor = ContextCompat.getColorStateList(this, R.color.transparent) } // reset stroke
 
-        val placesLeft = slot.capacity - slot.registeredUsers.size
-        binding.registerTXTPlacesLeft.text = buildString {
-            append(placesLeft)
-            append(" places left")
+            button.strokeColor = ContextCompat.getColorStateList(this, R.color.black)
+            selectedButton = button
         }
-        binding.registerTXTNoTimeSelected.visibility = View.INVISIBLE
-        binding.registerTXTPlacesLeft.visibility = View.VISIBLE
-        selectedSlot = index
-        selectedButton?.let { it.strokeColor = ContextCompat.getColorStateList(this, R.color.transparent) } // reset stroke
-
-        button.strokeColor = ContextCompat.getColorStateList(this, R.color.black)
-        selectedButton = button
     }
 
     private fun registerClicked() {
