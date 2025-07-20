@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doAfterTextChanged
+import com.example.craftket.Models.ActivityLevel
 import com.example.craftket.Models.Filters
 import com.example.craftket.databinding.ActivityFiltersBinding
 import com.example.craftket.utilites.Constants
@@ -32,6 +33,7 @@ class FiltersActivity : AppCompatActivity() {
     private var startDate: Date? = null
     private var endDate: Date? = null
     var dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private var receivedFilters: Filters? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,13 +52,21 @@ class FiltersActivity : AppCompatActivity() {
     private fun initViews() {
         bundle = intent.extras ?: Bundle()
 
+        val filtersJson = bundle.getString(Constants.BundleKeys.FILTERS)
+        filtersJson?.let {
+            receivedFilters = Gson().fromJson(it, Filters::class.java)
+        }
+
         setLocationOptions()
         setActivityOptions()
+        setLevelsFilter()
         displayDate()
+
+        applyReceivedFilters()
+
         binding.filtersBTNBack.setOnClickListener {
             finish()
         }
-
         binding.filtersTXTMinPrice.doAfterTextChanged { text ->
             val min = text.toString().toFloatOrNull()
             val max = binding.filtersTXTMaxPrice.text.toString().toFloatOrNull()
@@ -64,7 +74,6 @@ class FiltersActivity : AppCompatActivity() {
                 binding.filtersSLIDERPrice.values = listOf(min, max)
             }
         }
-
         binding.filtersTXTMaxPrice.doAfterTextChanged { text ->
             val max = text.toString().toFloatOrNull()
             val min = binding.filtersTXTMinPrice.text.toString().toFloatOrNull()
@@ -72,26 +81,34 @@ class FiltersActivity : AppCompatActivity() {
                 binding.filtersSLIDERPrice.values = listOf(min, max)
             }
         }
-
         binding.filtersSLIDERPrice.addOnSliderTouchListener(object : RangeSlider.OnSliderTouchListener {
             override fun onStartTrackingTouch(slider: RangeSlider) {
                 // do nothing
             }
             override fun onStopTrackingTouch(slider: RangeSlider) {
                 val values = slider.values
-                binding.filtersTXTMinPrice.setText(buildString{
-                    append(values[0])
-                    append("₪")
-                })
-                binding.filtersTXTMaxPrice.setText(buildString{
-                    append(values[1])
-                    append("₪")
-                })
+                binding.filtersTXTMinPrice.setText(values[0].toInt().toString())
+                binding.filtersTXTMaxPrice.setText(values[1].toInt().toString())
             }
         })
 
         binding.filtersTXTReset.setOnClickListener { resetFilters() }
         binding.filtersBTNApply.setOnClickListener { applyFilters() }
+    }
+
+
+    private fun setLevelsFilter() {
+        val levels = ActivityLevel.entries.toTypedArray()
+
+        val checkBoxes = listOf(
+            binding.filtersCHECKBOXBeginner,
+            binding.filtersCHECKBOXAdvanced,
+            binding.filtersCHECKBOXExpert
+        )
+
+        levels.forEachIndexed { index, level ->
+            checkBoxes[index].text = level.name.lowercase().replaceFirstChar { it.uppercase() }
+        }
     }
 
     private fun setLocationOptions() {
@@ -183,14 +200,22 @@ class FiltersActivity : AppCompatActivity() {
                 selectedTypes.add(view.text.toString())
             }
         }
+        val levelMap = mapOf(
+            binding.filtersCHECKBOXBeginner to ActivityLevel.BEGINNER,
+            binding.filtersCHECKBOXAdvanced to ActivityLevel.ADVANCED,
+            binding.filtersCHECKBOXExpert to ActivityLevel.EXPERT
+        )
+
+        val selectedLevels = levelMap.filter { it.key.isChecked }.values.toList()
         val priceRange = binding.filtersSLIDERPrice.values
         val startDateStr = startDate?.let { dateFormatter.format(it) }
         val endDateStr = endDate?.let { dateFormatter.format(it) }
         val resultIntent = Intent()
         val filters = Filters.Builder()
             .setCities(selectedCity.takeIf { it.isNotBlank() })
-            .setTypes(selectedTypes) // your custom method
-            .setPriceRange(priceRange[0], priceRange[1])
+            .setTypes(selectedTypes)
+            .setLevels(selectedLevels)
+            .setPriceRange(priceRange[0].toInt(), priceRange[1].toInt())
             .setStartDate(startDateStr)
             .setEndDate(endDateStr)
             .build()
@@ -203,6 +228,71 @@ class FiltersActivity : AppCompatActivity() {
 
 
     private fun resetFilters() {
+        binding.filtersTEXTLocationSearch.setText("")
 
+        for (i in 0 until binding.filtersCHECKBOXGroup.childCount) {
+            val view = binding.filtersCHECKBOXGroup.getChildAt(i)
+            if (view is CheckBox) {
+                view.isChecked = false
+            }
+        }
+
+        binding.filtersCHECKBOXBeginner.isChecked = false
+        binding.filtersCHECKBOXAdvanced.isChecked = false
+        binding.filtersCHECKBOXExpert.isChecked = false
+
+        binding.filtersSLIDERPrice.values = listOf(0f, 10000f)
+
+        binding.filtersTXTMinPrice.setText("0")
+        binding.filtersTXTMaxPrice.setText("10000")
+
+        startDate = null
+        endDate = null
+        binding.filtersTXTStartDate.text = "Start Date"
+        binding.filtersTXTEndDate.text = "End Date"
+        binding.filtersTXTEndDate.setTextColor(Color.BLACK)
+        binding.filtersTXTEndDate.error = null
     }
+
+
+    private fun applyReceivedFilters() {
+        val filters = receivedFilters ?: return
+
+        filters.selectedCity?.let {
+            binding.filtersTEXTLocationSearch.setText(it, false)
+        }
+
+        filters.selectedTypes?.let { selected ->
+            for (i in 0 until binding.filtersCHECKBOXGroup.childCount) {
+                val view = binding.filtersCHECKBOXGroup.getChildAt(i)
+                if (view is CheckBox && view.text in selected) {
+                    view.isChecked = true
+                }
+            }
+        }
+
+        filters.minPrice?.let {
+            binding.filtersTXTMinPrice.setText(it.toString())
+        }
+        filters.maxPrice?.let {
+            binding.filtersTXTMaxPrice.setText(it.toString())
+        }
+        if (filters.minPrice != null && filters.maxPrice != null) {
+            binding.filtersSLIDERPrice.values = listOf(filters.minPrice.toFloat(), filters.maxPrice.toFloat())
+        }
+        filters.startDate?.let {
+            startDate = dateFormatter.parse(it)
+            binding.filtersTXTStartDate.text = it
+        }
+        filters.endDate?.let {
+            endDate = dateFormatter.parse(it)
+            binding.filtersTXTEndDate.text = it
+        }
+        filters.selectedLevels?.let { levels ->
+            if (ActivityLevel.BEGINNER in levels) binding.filtersCHECKBOXBeginner.isChecked = true
+            if (ActivityLevel.ADVANCED in levels) binding.filtersCHECKBOXAdvanced.isChecked = true
+            if (ActivityLevel.EXPERT in levels) binding.filtersCHECKBOXExpert.isChecked = true
+        }
+    }
+
 }

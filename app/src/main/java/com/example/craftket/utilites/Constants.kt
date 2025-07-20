@@ -6,5 +6,8 @@ class Constants {
         const val TYPES_LIST: String = "TYPES_LIST"
         const val FILTERS: String = "FILTERS"
         const val ACTIVITY: String = "ACTIVITY"
+        const val TIMESLOTS: String = "TIMESLOTS"
+        const val ACTIVITY_INDEX: String = "ACTIVITY_INDEX"
+        const val SELECTED_TIME_SLOT: String = "SELECTED_TIME_SLOT"
     }
 }

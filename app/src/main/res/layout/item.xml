@@ -37,6 +37,7 @@
         android:elevation="8dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">

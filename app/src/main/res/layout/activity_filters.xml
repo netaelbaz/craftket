@@ -36,6 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Filters"
+        android:textStyle="bold"
         android:layout_below="@id/filters_BTN_back"
         android:textSize="32sp"
         android:layout_centerInParent="true"/>
@@ -64,24 +65,76 @@
         android:layout_height="wrap_content"
         android:focusable="true"
         android:focusableInTouchMode="true"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@color/gray" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Level"
         android:textSize="26dp"
         android:textStyle="bold" />
+    <LinearLayout
+        android:id="@+id/filters_LAYOUT_levels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="8dp">
+
+        <CheckBox
+            android:id="@+id/filters_CHECKBOX_beginner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/textSize"
+            android:layout_weight="1"/>
+
+        <CheckBox
+            android:id="@+id/filters_CHECKBOX_advanced"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/textSize"
+            android:layout_weight="1"/>
+
+        <CheckBox
+            android:id="@+id/filters_CHECKBOX_expert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/textSize"
+            android:layout_weight="1"/>
+    </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/gray" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Activity"
         android:textSize="26dp"
         android:textStyle="bold" />
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:fillViewport="true">
     <LinearLayout
         android:id="@+id/filters_CHECKBOX_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
     </LinearLayout>
+        </ScrollView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@color/gray" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -122,8 +175,9 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:padding="0dp"
-            android:text="0₪"
-            android:gravity="center"
+            android:text="0"
+            android:drawableEnd="@drawable/shekel"
+            android:gravity="center_horizontal"
             android:textSize="@dimen/textSize" />
     </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
@@ -167,8 +221,8 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:padding="0dp"
-                android:text="10000₪"
-                android:gravity="center"
+                android:text="10000"
+                android:drawableEnd="@drawable/shekel"
                 android:textSize="@dimen/textSize" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
@@ -181,7 +235,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:values="@array/slider_values"
-        android:layout_marginTop="12dp"
         android:stepSize="1"
         android:valueFrom="0"
         android:valueTo="10000"
@@ -191,6 +244,12 @@
         app:tickColor="@color/orange"
         app:trackColor="@color/orange"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/gray" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -264,6 +323,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Apply"
+        android:textColor="@color/black"
         android:textSize="@dimen/textSize"
         android:backgroundTint="@color/orange"
         android:layout_centerInParent="true"

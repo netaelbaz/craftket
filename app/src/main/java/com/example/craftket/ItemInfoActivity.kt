@@ -15,12 +15,18 @@ import com.google.android.gms.maps.model.MarkerOptions
 import android.content.Context
 import android.content.Intent
 import android.location.Geocoder
+import android.util.Log
 import android.view.View
 import com.example.craftket.Models.Activity
 import com.example.craftket.utilites.Constants
 import com.google.gson.Gson
 import java.util.Locale
 import androidx.core.net.toUri
+import com.example.craftket.adapters.ImageSliderAdapter
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.*
+
 
 class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -29,6 +35,8 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mapFragment: SupportMapFragment
     private var addressCoordinates: Pair<Double, Double>? = null
     val gson = Gson()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
+    private var activityIndex: Int = -1
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,23 +49,39 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        initViews()
+        showLoading()
+
+        coroutineScope.launch {
+            val json = intent.getStringExtra(Constants.BundleKeys.ACTIVITY)
+            val currentActivity = gson.fromJson(json, Activity::class.java)
+            activityIndex = intent.getIntExtra(Constants.BundleKeys.ACTIVITY_INDEX, -1)
+            val address = currentActivity.location.getFullAddress()
+
+            // Geocode in IO dispatcher off main thread
+            addressCoordinates = withContext(Dispatchers.IO) {
+                getLatLongFromAddress(this@ItemInfoActivity, address)
+            }
+
+            // Now init map async and fill UI fields
+            initViews(currentActivity)
+            Log.d("finished", "finish")
+            hideLoading()
+        }
     }
 
-    private fun initViews () {
+    private fun initViews (currentActivity: Activity) {
         mapFragment = supportFragmentManager.findFragmentById(R.id.info_FRAGMENT_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        val json = intent.getStringExtra(Constants.BundleKeys.ACTIVITY)
-        val currentActivity = gson.fromJson(json, Activity::class.java)
         binding.infoTXTActivityName.text = currentActivity.name
-        binding.infoTXTPrice.text = buildString {
-            append(currentActivity.price.toString())
-            append("₪")
+        binding.infoTXTPrice.text = currentActivity.price.toString()
+        // fix levels appearance
+        binding.infoTXTLevels.text = currentActivity.levels.joinToString(" | ") {
+            it.name.lowercase().replaceFirstChar { it.uppercase() }
         }
         binding.infoTXTAddress.text = currentActivity.location.getFullAddress()
         addressCoordinates = getLatLongFromAddress(this, currentActivity.location.getFullAddress())
         binding.infoBTNRegister.setOnClickListener {
-            registerForClass()
+            registerForClass(currentActivity)
         }
         binding.infoTXTCancelTime.text = buildString {
             append(currentActivity.cancelTime.toString())
@@ -76,6 +100,38 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.infoTOOLNavigation.setNavigationOnClickListener { view: View -> finish() }
+
+        // set sliding images
+        val pageMarginPx = (8 * resources.displayMetrics.density).toInt()  // 8dp in pixels
+        val pageOffsetPx = (20 * resources.displayMetrics.density).toInt() // 20dp in pixels
+
+        binding.infoViewpagerSlidingImages.setPageTransformer { page, position ->
+            val offset = position * -(2 * pageOffsetPx + pageMarginPx)
+            page.translationX = offset
+
+            // Optional: scale effect on side pages
+            val scale = 0.85f + (1 - kotlin.math.abs(position)) * 0.15f
+            page.scaleY = scale
+            page.scaleX = scale
+        }
+
+
+
+        val dbRef = FirebaseDatabase.getInstance().getReference("activities").child(activityIndex.toString()).child("additionalImages")
+
+        dbRef.get().addOnSuccessListener { result ->
+            val urls = mutableListOf<String>()
+            for (child in result.children) {
+                val url = child.getValue(String::class.java)
+                if (!url.isNullOrEmpty()) {
+                    urls.add(url)
+                }
+            }
+            binding.infoViewpagerSlidingImages.adapter = ImageSliderAdapter(urls)
+        }.addOnFailureListener { e ->
+            Log.e("Firebase", "Failed to load image URLs", e)
+        }
+
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -92,8 +148,22 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
         context.startActivity(intent)
     }
 
-    private fun registerForClass() {
-        println("register clicked")
+    private fun showLoading() {
+        binding.infoProgressbar.visibility = View.VISIBLE
+        binding.infoMainContent.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        binding.infoProgressbar.visibility = View.GONE
+        binding.infoMainContent.visibility = View.VISIBLE
+    }
+
+
+    private fun registerForClass(currentActivity: Activity) {
+        val intent = Intent(this, ClassRegisterActivity::class.java)
+        intent.putExtra(Constants.BundleKeys.TIMESLOTS, gson.toJson(currentActivity.schedule) )
+        intent.putExtra(Constants.BundleKeys.ACTIVITY_INDEX, activityIndex )
+        startActivity(intent)
     }
 
     private fun zoomInMap(lat: Double, lon: Double) {

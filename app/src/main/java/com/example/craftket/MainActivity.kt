@@ -26,6 +26,8 @@ import com.google.firebase.database.database
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var citiesList: List<String>
     private lateinit var activityTypesList: List<String>
     private lateinit var filtersLauncher: ActivityResultLauncher<Intent>
+    private var lastUsedFilters: Filters? = null
     val gson = Gson()
 
 
@@ -57,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         adapter.activityCallback = object : ActivityCallback {
             override fun moreInfoClicked(activity: Activity, position: Int) {
                 // Handle "more info" button click
-                openMoreInfo(activity)
+                openMoreInfo(activity, position)
             }
         }
     }
@@ -69,20 +72,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun getStorageReference() {
         val storageRef = FirebaseStorage.getInstance().reference
-        val imageRef = storageRef.child("tennis.jpg") // replace with your path
-        imageRef.downloadUrl.addOnSuccessListener { uri ->
-            println("File download URL: $uri")
-        }.addOnFailureListener { exception ->
-            println("Failed to get download URL: ${exception.message}")
+        val urls = listOf("sbc ceramics.png", "sbt_ceramics_@.png", "Screenshot 2025-06-06 132036.png")
+        urls.map { fileName ->
+            val imageRef = storageRef.child(fileName)
+            imageRef.downloadUrl.addOnSuccessListener { uri ->
+                println("File download URL: $uri")
+            }.addOnFailureListener { exception ->
+                println("Failed to get download URL: ${exception.message}")
+            }
         }
+
     }
 
     private fun getMessageFromDB() {
         val ref = getDatabaseReference("activities")
-        val database = FirebaseDatabase.getInstance()
-        val myRef = database.getReference("your-path")
-        Log.d("Firebase", "Database URL: ${database.reference.toString()}")
-        Log.d("Firebase", "Reference path: ${myRef.toString()}")
         ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 activityList = mutableListOf<Activity>()
@@ -160,10 +163,11 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun openMoreInfo(activity: Activity) {
+    private fun openMoreInfo(activity: Activity, position: Int) {
         val intent = Intent(this, ItemInfoActivity::class.java)
         val activityAsJson = gson.toJson(activity)
         intent.putExtra(Constants.BundleKeys.ACTIVITY, activityAsJson)
+        intent.putExtra(Constants.BundleKeys.ACTIVITY_INDEX, position)
         startActivity(intent)
     }
 
@@ -172,36 +176,45 @@ class MainActivity : AppCompatActivity() {
         var bundle = Bundle()
         bundle.putStringArrayList(Constants.BundleKeys.CITIES_LIST, ArrayList(citiesList))
         bundle.putStringArrayList(Constants.BundleKeys.TYPES_LIST, ArrayList(activityTypesList))
+        lastUsedFilters?.let {
+            val filtersJson = gson.toJson(it)
+            bundle.putString(Constants.BundleKeys.FILTERS, filtersJson)
+        }
+
         intent.putExtras(bundle)
         filtersLauncher.launch(intent)
     }
 
     private fun applyFilters(filters: Filters) {
+        lastUsedFilters = filters
         val filteredList = activityList.filter { activity ->
 
             val locationMatches = filters.selectedCity.isNullOrBlank() || activity.location.city == filters.selectedCity
             val typesMatches = filters.selectedTypes.isNullOrEmpty() || filters.selectedTypes.contains(activity.field)
+            val levelMatches = filters.selectedLevels.isNullOrEmpty() || activity.levels.any { it in filters.selectedLevels }
             val minPriceMatches = filters.minPrice == null || activity.price >= filters.minPrice
             val maxPriceMatches = filters.maxPrice == null || activity.price <= filters.maxPrice
 
-//            val startDateMillis = filters.startDate
-//            val endDateMillis = filters.endDate
-//            val dateMatches = if (startDateMillis != null && endDateMillis != null) {
-//                // Example: true if any schedule overlaps with filter date range
-//                activity.schedule.any { timeSlot ->
-//                    val slotStart = timeSlot.startDateMillis
-//                    val slotEnd = timeSlot.endDateMillis
-//                    // Overlap check:
-//                    slotStart <= endDateMillis && slotEnd >= startDateMillis
-//                }
-//            } else {
-//                true // no date filter applied
-//            }
-            val dateMatches = true // change later
+            val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val startDate =filters.startDate?.let { dateFormatter.parse(it) }
+            val endDate =filters.endDate?.let { dateFormatter.parse(it) }
+            val dateMatches = if (startDate != null && endDate != null) {
+                activity.schedule.any { timeSlot ->
+                    try {
+                        val slotDate = dateFormatter.parse(timeSlot.date)
+                        slotDate != null && slotDate >= startDate && slotDate <= endDate
+                    } catch (e: Exception) {
+                        false
+                    }
+                }
+            } else {
+                true // If no date filter applied
+            }
 
-            locationMatches && typesMatches && minPriceMatches && maxPriceMatches && dateMatches
+            locationMatches && typesMatches && minPriceMatches && maxPriceMatches && dateMatches && levelMatches
         }
 
         adapter.updateData(filteredList)
+
     }
 }

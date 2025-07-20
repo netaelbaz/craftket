@@ -1,7 +1,9 @@
 package com.example.craftket.Models
 
 data class TimeSlot(
-    val dayOfWeek: String = "",
-    val startTime: String = "",
-    val endTime: String = ""
+    val date: String = "",
+    val startTime: Int = 0,
+    val endTime: Int = 24,
+    val capacity: Int = 0,
+    val registeredUsers: List<String> = emptyList()
 )

@@ -27,15 +27,15 @@
         android:background="@color/transparent"
         tools:ignore="MissingConstraints"
         app:tint="#E21D1E1F"
-        android:layout_below="@id/main_INPUT_search"/>
+        android:layout_below="@id/main_BTN_signOut"/>
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/main_INPUT_search"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text"
-        android:hint="search activities"
-        android:layout_below="@id/main_BTN_signOut" />
+<!--    <com.google.android.material.textfield.TextInputEditText-->
+<!--        android:id="@+id/main_INPUT_search"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:inputType="text"-->
+<!--        android:hint="search activities"-->
+<!--        android:layout_below="@id/main_BTN_signOut" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/main_RV_list"

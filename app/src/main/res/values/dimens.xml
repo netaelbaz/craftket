@@ -2,4 +2,5 @@
 <resources>
     <dimen name="default_margin">16dp</dimen>
     <dimen name="textSize">18sp</dimen>
+    <dimen name="titleSize">40sp</dimen>
 </resources>

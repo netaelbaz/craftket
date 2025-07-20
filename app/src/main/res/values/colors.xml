@@ -6,4 +6,7 @@
     <color name="transparent">#00CBC400</color>
     <color name="textColor">#F97C00</color>
     <color name="orange">#EFB67C</color>
+    <color name="gray">#BDBDBD</color>
+    <color name="red">#F60707</color>
+
 </resources>
