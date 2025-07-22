@@ -31,7 +31,7 @@ class ActivityAdapter(private val activities: MutableList<Activity>) :
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
         with(holder) {
             with(getItem(position)) {
-                binding.itemLBLTitle.text = name
+                binding.itemLBLTitle.text = name.replaceFirstChar { it.uppercase() }
                 binding.itemLBLPrice.text = buildString {
                     append(price)
                     append("₪/class")

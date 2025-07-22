@@ -24,6 +24,7 @@ import com.google.firebase.database.ValueEventListener
 import java.time.format.DateTimeFormatter
 import java.time.LocalDate
 import java.util.Locale
+import kotlin.math.roundToInt
 
 
 class ClassRegisterActivity : AppCompatActivity() {
@@ -48,12 +49,18 @@ class ClassRegisterActivity : AppCompatActivity() {
         initViews()
     }
 
+    private fun formatHourToString(value: Float): String {
+        val hours = value.toInt()
+        val minutes = ((value - hours) * 60).roundToInt()
+        return String.format("%02d:%02d", hours, minutes)
+    }
+
     private fun addTimeButton(slot: TimeSlot, index: Int) {
         val button = MaterialButton(this).apply {
             text = buildString {
-                append(slot.startTime)
+                append(formatHourToString(slot.startTime))
                 append(" - ")
-                append(slot.endTime)
+                append(formatHourToString(slot.endTime))
             }
             setTextColor(ContextCompat.getColor(context, R.color.black))
             strokeColor = ContextCompat.getColorStateList(context, R.color.transparent)

@@ -46,14 +46,9 @@ class AddItemActivity : AppCompatActivity() {
     private lateinit var additionalPickImageLauncher: ActivityResultLauncher<String>
     private var mainImageUrl: String? = null
     private val storageRef = FirebaseStorage.getInstance().reference
-    private lateinit var pickMultipleImagesLauncher: ActivityResultLauncher<String>
     private var additionalImageUrls: MutableList<String> = mutableListOf()
-
     private lateinit var imageViews: List<ImageView>
     private var selectedImageIndex = -1
-
-
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -189,7 +184,7 @@ class AddItemActivity : AppCompatActivity() {
 
     private fun addItem() {
         val dbRef = FirebaseDatabase.getInstance().getReference("activities")
-        val activityName = binding.addEDITName.text.toString().trim()
+        val activityName = binding.addEDITName.text.toString()
         if (activityName.isEmpty()) {
             SignalManager.getInstance().toast("Name is required")
             return
@@ -206,7 +201,6 @@ class AddItemActivity : AppCompatActivity() {
             SignalManager.getInstance().toast("Please enter a valid address")
             return
         }
-        println("location ${activityLocation.getFullAddress()}")
         val activityFacebookUrl = binding.addEDITFacebook.text.toString()
         val activityInstagramUrl = binding.addEDITInstagram.text.toString()
         val activityCancelTime = binding.addEDITCancel.text.toString().toIntOrNull()
@@ -287,11 +281,6 @@ class AddItemActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun fixNameFormat(name: String) {
-        //
-    }
-
     private fun setupTypeButtons(types: List<String>) {
         binding.addGROUPTypesContainer.removeAllViews()
 
@@ -370,8 +359,8 @@ class AddItemActivity : AppCompatActivity() {
 
     fun generateRepeatedTimeSlots(
         startDate: LocalDate,
-        startHour: Int,
-        endHour: Int,
+        startHour: Float,
+        endHour: Float,
         repeatCount: Int,
         capacity: Int
     ): List<TimeSlot> {
@@ -423,9 +412,12 @@ class AddItemActivity : AppCompatActivity() {
             binding.scheduleREPEATCount.text.toString().toIntOrNull() ?: 0
         } else 0
 
-        // Combine date with time to get exact timestamps (example)
         val startHour = pickedStartTime!!.get(Calendar.HOUR_OF_DAY)
+        val startMinutes = pickedStartTime!!.get(Calendar.MINUTE)
+        val startTime = (startHour + startMinutes / 60.0).toFloat()
         val endHour = pickedEndTime!!.get(Calendar.HOUR_OF_DAY)
+        val endMinutes = pickedEndTime!!.get(Calendar.MINUTE)
+        val endTime = (endHour + endMinutes / 60.0).toFloat()
 
         val capacity = binding.scheduleTXTCapacity.text.toString().toIntOrNull()
         if (capacity == null || capacity == 0) {
@@ -435,8 +427,8 @@ class AddItemActivity : AppCompatActivity() {
         if (repeatWeekly) {
             val slots = generateRepeatedTimeSlots(
                 localStartDate,
-                startHour,
-                endHour,
+                startTime,
+                endTime,
                 repeatCount,
                 capacity
             )
@@ -444,8 +436,8 @@ class AddItemActivity : AppCompatActivity() {
         } else {
             val slot = TimeSlot(
                 date = formattedDate,
-                startTime = startHour,
-                endTime = endHour,
+                startTime = startTime,
+                endTime = endTime,
                 capacity = capacity,
                 registeredUsers = emptyList()
             )
@@ -480,7 +472,7 @@ class AddItemActivity : AppCompatActivity() {
         imageRef.putFile(uri)
             .addOnSuccessListener {
                 imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    onSuccess(downloadUri.toString()) // return the download URL
+                    onSuccess(downloadUri.toString()) // return the downloaded url
                 }
             }
             .addOnFailureListener { exception ->

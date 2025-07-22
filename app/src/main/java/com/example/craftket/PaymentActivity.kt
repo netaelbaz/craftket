@@ -36,8 +36,10 @@ class PaymentActivity : AppCompatActivity() {
         initViews()
     }
 
-    fun intToHour24(hour: Int): String {
-        return String.format("%02d:00", hour)
+    fun floatToHour24(hour: Float): String {
+        val h = hour.toInt()
+        val m = ((hour - h) * 60).toInt()
+        return String.format("%02d:%02d", h, m)
     }
 
 
@@ -52,9 +54,9 @@ class PaymentActivity : AppCompatActivity() {
                 val timeSlot = activity.schedule[timeSlotIndex]
                 binding.payTXTTitle.text = activity.name
                 binding.payTXTHour.text = buildString {
-                    append(intToHour24(timeSlot.startTime))
+                    append(floatToHour24(timeSlot.startTime))
                     append(" - ")
-                    append(intToHour24(timeSlot.endTime))
+                    append(floatToHour24(timeSlot.endTime))
                 }
                 binding.payTXTDate.text = timeSlot.date
                 binding.payTXTPrice.text = buildString {

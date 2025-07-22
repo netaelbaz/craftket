@@ -71,19 +71,6 @@ class SearchActivity : AppCompatActivity() {
         return database.getReference(path)
     }
 
-    private fun getStorageReference() {
-        val storageRef = FirebaseStorage.getInstance().reference
-        val urls = listOf("sbc ceramics.png", "sbt_ceramics_@.png", "Screenshot 2025-06-06 132036.png")
-        urls.map { fileName ->
-            val imageRef = storageRef.child(fileName)
-            imageRef.downloadUrl.addOnSuccessListener { uri ->
-                println("File download URL: $uri")
-            }.addOnFailureListener { exception ->
-                println("Failed to get download URL: ${exception.message}")
-            }
-        }
-
-    }
 
     private fun getMessageFromDB() {
         val ref = getDatabaseReference("activities")
@@ -147,11 +134,6 @@ class SearchActivity : AppCompatActivity() {
                     }
                 }
             }
-    }
-
-    private fun goBackToLoginActivity() {
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
     }
 
     private fun openMoreInfo(activity: Activity, position: Int) {
