@@ -9,7 +9,7 @@ data class Activity (
     var cancelTime: Int = 24,
     var schedule: List<TimeSlot> = emptyList(),
     var imageUrl: String = "",
-    var field: String = "",
+    var field: ActivityType = ActivityType.SPORT,
     var facebookUrl: String? = null,
     var instagramUrl: String? = null,
     var additionalImages: List<String> = emptyList()

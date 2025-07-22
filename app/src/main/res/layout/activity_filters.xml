@@ -1,36 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".FiltersActivity"
     android:background="@color/backgroundColor">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/default_margin">
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/filters_BTN_back"
+
+    <Toolbar
+        android:id="@+id/filters_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:navigationIcon="@drawable/outline_arrow_back_ios_new_24"
+        android:collapseIcon="@drawable/settings">
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/filters_BTN_reset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/default_margin"
-        android:layout_marginStart="5dp"
-        android:src="@drawable/outline_arrow_back_ios_new_24"
         android:background="@color/transparent"
-        android:layout_alignParentTop="true"/>
-
-    <TextView
-        android:id="@+id/filters_TXT_reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        android:layout_marginEnd="@dimen/default_margin"
-        android:layout_marginTop="@dimen/default_margin"
-        android:layout_alignParentEnd="true"
+        android:layout_gravity="end"
         android:text="Reset all"
+        android:padding="0dp"
         android:textSize="@dimen/textSize"
         android:clickable="true"
         android:textColor="@color/textColor"/>
+
+    </Toolbar>
 
     <TextView
         android:id="@+id/filters_TXT_title"
@@ -38,14 +43,16 @@
         android:layout_height="wrap_content"
         android:text="Filters"
         android:textStyle="bold"
-        android:layout_below="@id/filters_BTN_back"
+        android:layout_below="@id/filters_toolbar"
         android:textSize="32sp"
         android:layout_centerInParent="true"/>
+    </RelativeLayout>
 
     <ScrollView
         android:id="@+id/filters_scrollview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_below="@id/filters_TXT_title"
         android:layout_above="@id/filters_BTN_apply"
         android:scrollbars="none"
@@ -53,7 +60,8 @@
 
     <LinearLayout
         android:id="@+id/filters_LAYOUT_main_filters"
-        android:layout_margin="@dimen/default_margin"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -180,7 +188,7 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:padding="0dp"
-            android:text="0"
+            android:text="@string/default_minimum_price"
             android:drawableEnd="@drawable/shekel"
             android:gravity="center_horizontal"
             android:textSize="@dimen/textSize" />
@@ -226,7 +234,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:padding="0dp"
-                android:text="10000"
+                android:text="@string/default_maximum_price"
                 android:drawableEnd="@drawable/shekel"
                 android:textSize="@dimen/textSize" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -271,7 +279,7 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:drawableEnd="@drawable/outline_calendar_today_24"
-            android:text="Start Date"
+            android:text="@string/start_date_filter"
             android:padding="16dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
@@ -285,7 +293,7 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:drawableEnd="@drawable/outline_calendar_today_24"
-            android:text="End Date"
+            android:text="@string/end_date_filter"
             android:padding="16dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
@@ -307,11 +315,8 @@
         android:textColor="@color/black"
         android:textSize="@dimen/textSize"
         android:backgroundTint="@color/orange"
-        android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/default_margin"
         android:layout_marginTop="@dimen/default_margin"
-        android:layout_centerHorizontal="true"/>
-<!--        android:layout_below="@id/filters_scrollview"/>-->
+        android:layout_gravity="center"/>
 
-
-</RelativeLayout>
+</LinearLayout>

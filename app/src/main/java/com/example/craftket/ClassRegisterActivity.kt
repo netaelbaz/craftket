@@ -109,19 +109,26 @@ class ClassRegisterActivity : AppCompatActivity() {
             intent.putExtra(Constants.BundleKeys.SELECTED_TIME_SLOT, selectedSlot )
             intent.putExtra(Constants.BundleKeys.ACTIVITY_INDEX, activityIndex )
             startActivity(intent)
-        // if user already registered, text message
             }
     }
 
-    private fun displayTimesForSelectedDate(matchingSlots: List<TimeSlot>) {
+    private fun displayTimesForSelectedDate(
+        matchingSlots: List<TimeSlot>,
+        fullSchedule: List<TimeSlot>
+    ) {
         if (matchingSlots.isEmpty()) {
             binding.registerTXTNoTimes.visibility = View.VISIBLE
-        }
-        else {
+        } else {
             binding.registerTXTNoTimes.visibility = View.INVISIBLE
         }
-        matchingSlots.forEachIndexed { index, slot ->
-                addTimeButton(slot, index)
+
+        matchingSlots.forEach { slot ->
+            val realIndex = fullSchedule.indexOfFirst {
+                it.date == slot.date &&
+                        it.startTime == slot.startTime &&
+                        it.endTime == slot.endTime
+            }
+            addTimeButton(slot, realIndex)
         }
     }
 
@@ -130,7 +137,7 @@ class ClassRegisterActivity : AppCompatActivity() {
         activityIndex = intent.getIntExtra(Constants.BundleKeys.ACTIVITY_INDEX, -1)
 //        val type = object : TypeToken<List<TimeSlot>>() {}.type
 //        val timeSlots: List<TimeSlot> = Gson().fromJson(json, type)
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())
+        val formatter = DateTimeFormatter.ofPattern(Constants.Format.DATE_FORMATTER, Locale.getDefault())
         binding.registerCALENDARDates.date = System.currentTimeMillis()
 
         val dbRef = FirebaseDatabase.getInstance().getReference("activities").child(activityIndex.toString())
@@ -147,7 +154,7 @@ class ClassRegisterActivity : AppCompatActivity() {
                                 it.capacity > it.registeredUsers.size
                     }
                     binding.registerLAYOUTTimeDisplay.removeAllViews()
-                    displayTimesForSelectedDate(todayMatchingSlots)
+                    displayTimesForSelectedDate(todayMatchingSlots, timeSlots)
 
                     binding.registerCALENDARDates.setOnDateChangeListener { _, year, month, dayOfMonth ->
                         // reset messages
@@ -160,7 +167,7 @@ class ClassRegisterActivity : AppCompatActivity() {
                                     it.capacity > it.registeredUsers.size
                         }
                         binding.registerLAYOUTTimeDisplay.removeAllViews()
-                        displayTimesForSelectedDate(matching)
+                        displayTimesForSelectedDate(matching, timeSlots)
                     }
                 }
             }

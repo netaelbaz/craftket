@@ -72,4 +72,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.view)
     implementation(libs.androidx.viewpager2)
+    implementation(libs.flexbox)
+
 }

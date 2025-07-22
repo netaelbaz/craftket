@@ -6,6 +6,6 @@ data class Location(
     var number: Int = 0
 ) {
     fun getFullAddress(): String {
-        return "$street, $number, $city"
+        return "${street.trim()}, $number, ${city.trim()}"
     }
 }

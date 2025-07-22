@@ -24,7 +24,6 @@ import java.util.Locale
 import androidx.core.net.toUri
 import com.example.craftket.adapters.ImageSliderAdapter
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.*
 
 
@@ -57,15 +56,43 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
             activityIndex = intent.getIntExtra(Constants.BundleKeys.ACTIVITY_INDEX, -1)
             val address = currentActivity.location.getFullAddress()
 
-            // Geocode in IO dispatcher off main thread
             addressCoordinates = withContext(Dispatchers.IO) {
                 getLatLongFromAddress(this@ItemInfoActivity, address)
             }
 
-            // Now init map async and fill UI fields
             initViews(currentActivity)
             Log.d("finished", "finish")
             hideLoading()
+        }
+    }
+
+    private fun setSlidingPictures() {
+        // set sliding images
+        val pageMarginPx = (8 * resources.displayMetrics.density).toInt()  // 8dp in pixels
+        val pageOffsetPx = (20 * resources.displayMetrics.density).toInt() // 20dp in pixels
+
+        binding.infoViewpagerSlidingImages.setPageTransformer { page, position ->
+            val offset = position * -(2 * pageOffsetPx + pageMarginPx)
+            page.translationX = offset
+
+            // Optional: scale effect on side pages
+            val scale = 0.85f + (1 - kotlin.math.abs(position)) * 0.15f
+            page.scaleY = scale
+            page.scaleX = scale
+        }
+        val dbRef = FirebaseDatabase.getInstance().getReference("activities").child(activityIndex.toString()).child("additionalImages")
+
+        dbRef.get().addOnSuccessListener { result ->
+            val urls = mutableListOf<String>()
+            for (child in result.children) {
+                val url = child.getValue(String::class.java)
+                if (!url.isNullOrEmpty()) {
+                    urls.add(url)
+                }
+            }
+            binding.infoViewpagerSlidingImages.adapter = ImageSliderAdapter(urls)
+        }.addOnFailureListener { e ->
+            Log.e("Firebase", "Failed to load image URLs", e)
         }
     }
 
@@ -88,50 +115,20 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
             append(" hours before class")
         }
         val facebookUrl = currentActivity.facebookUrl
-        if (facebookUrl != null) {
+        if (!facebookUrl.isNullOrBlank()) {
             binding.infoBTNFacebook.visibility = View.VISIBLE
             binding.infoBTNFacebook.setOnClickListener { openLink(this, facebookUrl) }
         }
 
         val instagramUrl = currentActivity.instagramUrl
-        if (instagramUrl != null) {
+        if (!instagramUrl.isNullOrBlank()) {
             binding.infoBTNInstagram.visibility = View.VISIBLE
             binding.infoBTNInstagram.setOnClickListener { openLink(this, instagramUrl) }
         }
 
         binding.infoTOOLNavigation.setNavigationOnClickListener { view: View -> finish() }
 
-        // set sliding images
-        val pageMarginPx = (8 * resources.displayMetrics.density).toInt()  // 8dp in pixels
-        val pageOffsetPx = (20 * resources.displayMetrics.density).toInt() // 20dp in pixels
-
-        binding.infoViewpagerSlidingImages.setPageTransformer { page, position ->
-            val offset = position * -(2 * pageOffsetPx + pageMarginPx)
-            page.translationX = offset
-
-            // Optional: scale effect on side pages
-            val scale = 0.85f + (1 - kotlin.math.abs(position)) * 0.15f
-            page.scaleY = scale
-            page.scaleX = scale
-        }
-
-
-
-        val dbRef = FirebaseDatabase.getInstance().getReference("activities").child(activityIndex.toString()).child("additionalImages")
-
-        dbRef.get().addOnSuccessListener { result ->
-            val urls = mutableListOf<String>()
-            for (child in result.children) {
-                val url = child.getValue(String::class.java)
-                if (!url.isNullOrEmpty()) {
-                    urls.add(url)
-                }
-            }
-            binding.infoViewpagerSlidingImages.adapter = ImageSliderAdapter(urls)
-        }.addOnFailureListener { e ->
-            Log.e("Firebase", "Failed to load image URLs", e)
-        }
-
+        setSlidingPictures()
     }
 
     override fun onMapReady(map: GoogleMap) {

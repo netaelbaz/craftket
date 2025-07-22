@@ -10,4 +10,7 @@ class Constants {
         const val ACTIVITY_INDEX: String = "ACTIVITY_INDEX"
         const val SELECTED_TIME_SLOT: String = "SELECTED_TIME_SLOT"
     }
+    object Format {
+        const val DATE_FORMATTER: String = "dd/MM/yyyy"
+    }
 }

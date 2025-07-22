@@ -32,13 +32,12 @@ class ActivityAdapter(private val activities: MutableList<Activity>) :
         with(holder) {
             with(getItem(position)) {
                 binding.itemLBLTitle.text = name
-                binding.itemLBLPrice.text = price.toString()
+                binding.itemLBLPrice.text = buildString {
+                    append(price)
+                    append("₪/class")
+                }
                 binding.itemLBLLocation.text = location.getFullAddress()
                 ImageLoader.getInstance().loadImage(imageUrl, binding.itemIMGPoster)
-
-//                binding.itemBTNMoreInfo.setOnClickListener {
-//                    activityCallback?.moreInfoClicked(getItem(position), position)
-//                }
             }
 
         }
@@ -48,11 +47,11 @@ class ActivityAdapter(private val activities: MutableList<Activity>) :
         RecyclerView.ViewHolder(binding.root) {
 
         init {
-//            binding.root.setOnClickListener {
-//                activityCallback?.activityClicked(getItem(adapterPosition), adapterPosition)
-//            }
             binding.itemBTNMoreInfo.setOnClickListener {
-                activityCallback?.moreInfoClicked(getItem(adapterPosition), adapterPosition)
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    activityCallback?.moreInfoClicked(getItem(position), position)
+                }
             }
         }
     }

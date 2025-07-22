@@ -32,7 +32,7 @@ class FiltersActivity : AppCompatActivity() {
     private lateinit var bundle: Bundle
     private var startDate: Date? = null
     private var endDate: Date? = null
-    var dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    var dateFormatter = SimpleDateFormat(Constants.Format.DATE_FORMATTER, Locale.getDefault())
     private var receivedFilters: Filters? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +64,7 @@ class FiltersActivity : AppCompatActivity() {
 
         applyReceivedFilters()
 
-        binding.filtersBTNBack.setOnClickListener {
+        binding.filtersToolbar.setNavigationOnClickListener {
             finish()
         }
         binding.filtersTXTMinPrice.doAfterTextChanged { text ->
@@ -92,7 +92,7 @@ class FiltersActivity : AppCompatActivity() {
             }
         })
 
-        binding.filtersTXTReset.setOnClickListener { resetFilters() }
+        binding.filtersBTNReset.setOnClickListener { resetFilters() }
         binding.filtersBTNApply.setOnClickListener { applyFilters() }
     }
 
@@ -243,13 +243,13 @@ class FiltersActivity : AppCompatActivity() {
 
         binding.filtersSLIDERPrice.values = listOf(0f, 10000f)
 
-        binding.filtersTXTMinPrice.setText("0")
-        binding.filtersTXTMaxPrice.setText("10000")
+        binding.filtersTXTMinPrice.setText(getString(R.string.default_minimum_price))
+        binding.filtersTXTMaxPrice.setText(getString(R.string.default_maximum_price))
 
         startDate = null
         endDate = null
-        binding.filtersTXTStartDate.text = "Start Date"
-        binding.filtersTXTEndDate.text = "End Date"
+        binding.filtersTXTStartDate.text = getString(R.string.start_date_filter)
+        binding.filtersTXTEndDate.text = getString(R.string.end_date_filter)
         binding.filtersTXTEndDate.setTextColor(Color.BLACK)
         binding.filtersTXTEndDate.error = null
     }

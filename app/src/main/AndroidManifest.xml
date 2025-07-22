@@ -10,11 +10,26 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
+        android:supportsRtl="false"
         android:theme="@style/Theme.Crafket"
         tools:targetApi="31">
         <activity
-            android:name=".filtersActivity"
+            android:name=".AddItemActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SearchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ClassRegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ItemInfoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FiltersActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
@@ -34,6 +49,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
     </application>
 
 </manifest>

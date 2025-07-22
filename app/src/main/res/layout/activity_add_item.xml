@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddItemActivity"
+    android:background="@color/backgroundColor">
+
+    <Toolbar
+        android:id="@+id/add_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:navigationIcon="@drawable/outline_arrow_back_ios_new_24"
+        android:collapseIcon="@drawable/settings"
+        >
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/add_BTN_signOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="sign out"
+            android:padding="0dp"
+            android:textColor="@color/black"
+            tools:ignore="MissingConstraints"
+            android:background="@color/transparent"
+            android:layout_gravity="end"/>
+    </Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:layout_below="@id/add_toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Activity"
+                android:textSize="@dimen/filter_title_size"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="16dp"
+                android:layout_gravity="center"/>
+
+            <ImageView
+                android:id="@+id/add_IMAGE_add_main"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/add_photo"
+                android:background="@color/gray"
+                android:scaleType="centerInside"
+                android:padding="5dp"
+                android:layout_marginBottom="16dp"
+                android:layout_gravity="center" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_EDIT_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Activity Name"
+                android:inputType="text" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Type"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"/>
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/add_GROUP_types_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flexWrap="wrap"
+                app:flexDirection="row"
+                app:justifyContent="flex_start"
+                app:alignItems="flex_start"
+                android:padding="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Level"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"/>
+
+            <LinearLayout
+                android:id="@+id/level_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_EDIT_price"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:hint="price" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_EDIT_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Cancel Time ( in Hours )" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_EDIT_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Address ( Street, Number, City )"
+                android:inputType="textPostalAddress"
+                android:layout_marginTop="8dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Socials"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"/>
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_EDIT_facebook"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Facebook URL ( optional )"
+                android:inputType="textUri"
+                android:layout_marginTop="8dp" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_EDIT_instagram"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Instagram URL ( optional )"
+                android:inputType="textUri"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Additional Images\n     (at least one)"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"
+                />
+
+            <LinearLayout
+                android:id="@+id/image_gallery_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+                <ImageView
+                    android:id="@+id/add_additional_image_1"
+                    android:layout_width="70dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/add_photo"
+                    android:background="@color/white"
+                    android:scaleType="centerInside"
+                    android:padding="5dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginEnd="10dp" />
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+                <ImageView
+                    android:id="@+id/add_additional_image_2"
+                    android:layout_width="70dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/add_photo"
+                    android:background="@color/white"
+                    android:scaleType="centerInside"
+                    android:padding="5dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginEnd="10dp"/>
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+                <ImageView
+                    android:id="@+id/add_additional_image_3"
+                    android:layout_width="70dp"
+                    android:layout_height="90dp"
+                    android:src="@drawable/add_photo"
+                    android:background="@color/white"
+                    android:scaleType="centerInside"
+                    android:padding="5dp"
+                    android:layout_marginBottom="16dp" />
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Schedule"
+                android:textSize="@dimen/textSize"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"/>
+
+            <CheckBox
+                android:id="@+id/schedule_REPEAT_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Repeat Weekly"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/schedule_TXT_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pick_start_date"
+                android:padding="12dp"
+                android:drawablePadding="10dp"
+                android:drawableEnd="@drawable/outline_calendar_today_24"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:layout_gravity="center"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/schedule_TXT_start_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableEnd="@drawable/outline_access_time_24"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="@string/start_time" />
+
+                <TextView
+                    android:id="@+id/schedule_TXT_end_time"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/end_time"
+                    android:padding="12dp"
+                    android:gravity="center"
+                    android:background="?attr/selectableItemBackground"
+                    android:drawableEnd="@drawable/outline_access_time_24"
+                    android:clickable="true" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Capacity"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"/>
+
+            <LinearLayout
+                android:layout_marginTop="5dp"
+                android:id="@+id/numberStepper"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/schedule_BTN_minus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="−"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <TextView
+                android:id="@+id/schedule_TXT_capacity"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/capacity_default"
+                android:inputType="numberDecimal"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/schedule_BTN_plus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+        </LinearLayout>
+
+
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/schedule_REPEAT_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Repeat for how many weeks?"
+                android:inputType="number"
+                android:visibility="gone"
+                android:layout_marginTop="8dp" />
+
+            <Button
+                android:id="@+id/schedule_BTN_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Slot"
+                android:textSize="20sp"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="center"
+                android:textColor="@color/textColor"
+                android:backgroundTint="@color/transparent"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/add_BTN_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ADD"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/white"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
