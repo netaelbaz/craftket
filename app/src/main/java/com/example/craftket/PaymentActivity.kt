@@ -107,6 +107,7 @@ class PaymentActivity : AppCompatActivity() {
         scoresButton.setOnClickListener {
             dialog.dismiss()
             val intent = Intent(this, SearchActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             startActivity(intent)
             finish()
         }

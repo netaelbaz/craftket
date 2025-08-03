@@ -12,21 +12,18 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.craftket.Models.Activity
-import com.example.craftket.Models.ActivityType
 import com.example.craftket.Models.Filters
 import com.example.craftket.adapters.ActivityAdapter
 import com.example.craftket.databinding.ActivitySearchBinding
 import com.example.craftket.interfaces.ActivityCallback
 import com.example.craftket.utilites.Constants
 import com.example.craftket.utilites.Utils.signOut
-import com.firebase.ui.auth.AuthUI
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -72,13 +69,14 @@ class SearchActivity : AppCompatActivity() {
     }
 
 
-    private fun getMessageFromDB() {
+    private fun getActivitiesFromDB() {
         val ref = getDatabaseReference("activities")
         ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 activityList = mutableListOf<Activity>()
                 for (data in dataSnapshot.children) {
                     val activity = data.getValue(Activity::class.java)
+                    println("activity key ${data.key}")
                     activity?.let { activityList.add(it) }
                 }
                 adapter.updateData(activityList)
@@ -110,7 +108,7 @@ class SearchActivity : AppCompatActivity() {
             signOut(this)
         }
 
-        getMessageFromDB()
+        getActivitiesFromDB()
 
         binding.searchBTNFilters.setOnClickListener {
             openFiltersActivity()

@@ -65,7 +65,7 @@
                 android:id="@+id/add_EDIT_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Activity Name"
+                android:hint="Activity Name*"
                 android:inputType="text" />
 
 
@@ -101,25 +101,25 @@
                 android:id="@+id/level_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:orientation="horizontal"/>
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/add_EDIT_price"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:hint="price" />
+                android:hint="Price*" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/add_EDIT_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Cancel Time ( in Hours )" />
+                android:hint="Cancel Time ( in Hours )*" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/add_EDIT_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Address ( Street, Number, City )"
+                android:hint="Address ( Street, Number, City )*"
                 android:inputType="textPostalAddress"
                 android:layout_marginTop="8dp" />
 
@@ -136,7 +136,7 @@
                 android:id="@+id/add_EDIT_facebook"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Facebook URL ( optional )"
+                android:hint="Facebook URL"
                 android:inputType="textUri"
                 android:layout_marginTop="8dp" />
 
@@ -144,7 +144,7 @@
                 android:id="@+id/add_EDIT_instagram"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Instagram URL ( optional )"
+                android:hint="Instagram URL"
                 android:inputType="textUri"
                 android:layout_marginTop="8dp" />
 

@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.RadioButton
-import android.widget.RadioGroup
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,9 +23,11 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import androidx.activity.result.PickVisualMediaRequest
 import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.example.craftket.Models.ActivityType
 import com.example.craftket.Models.Location
@@ -42,8 +43,8 @@ class AddItemActivity : AppCompatActivity() {
     private var pickedDate: Calendar? = null
     private var pickedStartTime: Calendar? = null
     private var pickedEndTime: Calendar? = null
-    private lateinit var pickImageLauncher: ActivityResultLauncher<String>
-    private lateinit var additionalPickImageLauncher: ActivityResultLauncher<String>
+    private lateinit var mainImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
+    private lateinit var additionalImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
     private var mainImageUrl: String? = null
     private val storageRef = FirebaseStorage.getInstance().reference
     private var additionalImageUrls: MutableList<String> = mutableListOf()
@@ -62,16 +63,18 @@ class AddItemActivity : AppCompatActivity() {
             insets
         }
 
-        pickImageLauncher = registerForActivityResult(
-            ActivityResultContracts.GetContent()
+
+        mainImageLauncher = registerForActivityResult(
+            ActivityResultContracts.PickVisualMedia()
         ) { uri: Uri? ->
             uri?.let {
                 uploadSelectedImage(it)
-            }
+            } ?: Log.d("PhotoPicker", "No media selected")
         }
 
-        additionalPickImageLauncher = registerForActivityResult(
-            ActivityResultContracts.GetContent()
+
+        additionalImageLauncher = registerForActivityResult(
+            ActivityResultContracts.PickVisualMedia()
         ) { uri: Uri? ->
             uri?.let {
                 imageViews[selectedImageIndex].setImageURI(it)
@@ -96,7 +99,9 @@ class AddItemActivity : AppCompatActivity() {
         imageViews.forEachIndexed { index, imageView ->
             imageView.setOnClickListener {
                 selectedImageIndex = index
-                additionalPickImageLauncher.launch("image/*")
+                additionalImageLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
             }
         }
     }
@@ -179,11 +184,10 @@ class AddItemActivity : AppCompatActivity() {
     }
 
     private fun pickImageFromGallery() {
-        pickImageLauncher.launch("image/*")
+        mainImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
     private fun addItem() {
-        val dbRef = FirebaseDatabase.getInstance().getReference("activities")
         val activityName = binding.addEDITName.text.toString()
         if (activityName.isEmpty()) {
             SignalManager.getInstance().toast("Name is required")
@@ -267,22 +271,43 @@ class AddItemActivity : AppCompatActivity() {
             schedule = scheduleSlots,
             additionalImages = additionalImageUrls
         )
+        saveToDataBase(newActivity)
+    }
+
+    private fun saveToDataBase(newActivity: Activity) {
+        val dbRef = FirebaseDatabase.getInstance().getReference("activities")
+
         dbRef.get().addOnSuccessListener { snapshot ->
-            val nextIndex = snapshot.childrenCount.toInt()
-            dbRef.child(nextIndex.toString()).setValue(newActivity)
-                .addOnSuccessListener {
-                    Log.d("Firebase", "Activity added at index $nextIndex")
-                    SignalManager.getInstance().toast("Added Successfully")
-                    finish()
-                }
-                .addOnFailureListener { e ->
-                    Log.e("Firebase", "Failed to add activity", e)
-                }
+
+            val nameExists = snapshot.children.any { child ->
+                val name = child.child("name").getValue(String::class.java)
+                name == newActivity.name
+            }
+
+            if (nameExists) {
+                SignalManager.getInstance().toast("This activity name already exists")
+                Log.e("Firebase", "Activity name already exists")
+
+            }
+            else {
+                val nextIndex = snapshot.childrenCount.toInt()
+                dbRef.child(nextIndex.toString()).setValue(newActivity)
+                    .addOnSuccessListener {
+                        Log.d("Firebase", "Activity added at index $nextIndex")
+                        SignalManager.getInstance().toast("Added Successfully")
+                        finish()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Firebase", "Failed to add activity", e)
+                    }
+            }
+
         }
     }
 
     private fun setupTypeButtons(types: List<String>) {
         binding.addGROUPTypesContainer.removeAllViews()
+        val addedButtons = mutableListOf<RadioButton>()
 
         types.forEach { type ->
             val btn = RadioButton(this).apply {
@@ -294,7 +319,14 @@ class AddItemActivity : AppCompatActivity() {
                 ).apply {
                     marginEnd = 8
                 }
+
+                // manually disable multi selection because using flexbox and not radio group
+                setOnClickListener {
+                    addedButtons.forEach { it.isChecked = false }
+                    isChecked = true
+                }
             }
+            addedButtons.add(btn)
             binding.addGROUPTypesContainer.addView(btn)
         }
 
@@ -304,6 +336,7 @@ class AddItemActivity : AppCompatActivity() {
         for (level in ActivityLevel.entries) {
             val checkBox = CheckBox(this).apply {
                 text = level.name.lowercase().replaceFirstChar { it.uppercase() }
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
             binding.levelContainer.addView(checkBox)
         }
@@ -479,7 +512,4 @@ class AddItemActivity : AppCompatActivity() {
                 onFailure(exception)
             }
     }
-
-
 }
-
