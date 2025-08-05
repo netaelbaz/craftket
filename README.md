@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/icon.png" alt="CraftKet Logo" width="120"/>
+</p>
+
 # CraftKet 🎨📱
 
 CraftKet is a Kotlin-based Android application that serves as a platform for discovering and creating craft-related activities such as **Pilates**, **Ceramics**, **Photography**, and more. Users can search for activities, filter by preferences, add their own workshops, and register for time slots that suit them.
