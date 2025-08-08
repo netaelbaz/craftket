@@ -53,6 +53,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.ui.auth)
+    implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
 
     //Glide
@@ -60,6 +61,10 @@ dependencies {
 
     // storage
     implementation(platform(libs.firebase.bom.v33160))
+
+    implementation(platform(libs.firebase.bom.v3310))
+
+    implementation(libs.play.services.auth)
 
     implementation(libs.firebase.storage)
 

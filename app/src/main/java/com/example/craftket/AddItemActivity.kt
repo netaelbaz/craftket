@@ -178,89 +178,53 @@ class AddItemActivity : AppCompatActivity() {
     }
 
     private fun addItem() {
-        val activityName = binding.addEDITName.text.toString()
-        if (activityName.isEmpty()) {
-            SignalManager.getInstance().toast("Name is required")
-            return
-        }
+        val activityName = binding.addEDITName.text.toString().takeIf { it.isNotEmpty() } ?: return SignalManager.getInstance().toast("Name is required")
         val activityPrice = binding.addEDITPrice.text.toString().toIntOrNull()
-        if (activityPrice == null || activityPrice <= 0 || activityPrice > 10000) {
-            SignalManager.getInstance().toast("Please enter a valid price")
-            return
+            ?.takeIf { it in 1..10000 }
+            ?: return SignalManager.getInstance().toast("Please enter a valid price")
 
-        }
         val activityLocation = parseLocationFromString(binding.addEDITAddress.text.toString())
+            ?: return SignalManager.getInstance().toast("Please enter a valid address")
 
-        if (activityLocation == null) {
-            SignalManager.getInstance().toast("Please enter a valid address")
-            return
-        }
         val activityFacebookUrl = binding.addEDITFacebook.text.toString()
         val activityInstagramUrl = binding.addEDITInstagram.text.toString()
+
         val activityCancelTime = binding.addEDITCancel.text.toString().toIntOrNull()
-        if (activityCancelTime == null || activityCancelTime < 0) {
-            SignalManager.getInstance().toast("Please enter a valid cancellation time")
-            return
-        }
-        var selectedType: String? = null
-        for (i in 0 until binding.addGROUPTypesContainer.childCount) {
-            val view = binding.addGROUPTypesContainer.getChildAt(i)
-            if (view is RadioButton && view.isChecked) {
-                selectedType = view.text.toString()
-            }
-        }
+            ?.takeIf { it >= 0 }
+            ?: return SignalManager.getInstance().toast("Please enter a valid cancellation time")
 
-        if (selectedType == null) {
-            SignalManager.getInstance().toast("Type is required")
-            return
-        }
+        val selectedType = (0 until binding.addGROUPTypesContainer.childCount)
+            .mapNotNull { binding.addGROUPTypesContainer.getChildAt(it) as? RadioButton }
+            .firstOrNull { it.isChecked }
+            ?.text.toString()
+            .takeIf { it.isNotEmpty() }
+            ?: return SignalManager.getInstance().toast("Type is required")
 
-        val selectedLevels = arrayListOf<ActivityLevel>()
-        for (i in 0 until binding.levelContainer.childCount) {
-            val view = binding.levelContainer.getChildAt(i)
-            if (view is CheckBox && view.isChecked) {
-                val level = try {
-                    ActivityLevel.valueOf(view.text.toString().uppercase())
+
+        val selectedLevels = (0 until binding.levelContainer.childCount)
+            .mapNotNull { binding.levelContainer.getChildAt(it) as? CheckBox }
+            .filter { it.isChecked }
+            .mapNotNull {
+                try {
+                    ActivityLevel.valueOf(it.text.toString().uppercase())
                 } catch (_: IllegalArgumentException) {
                     null
                 }
-                level?.let { selectedLevels.add(it) }
             }
-        }
+        if (selectedLevels.isEmpty()) return SignalManager.getInstance().toast("Please select at least one level")
+        if (scheduleSlots.isEmpty()) return SignalManager.getInstance().toast("Please add at least one time slot")
+        if (additionalImageUris.isEmpty()) return SignalManager.getInstance().toast("At least one additional picture required")
 
-        if (selectedLevels.isEmpty()) {
-            SignalManager.getInstance().toast("Please select at least one level")
-            return
-        }
+        val mainImageUri = selectedMainImageUri ?: return SignalManager.getInstance().toast("Main picture is required")
 
+        binding.addProgressbar.visibility = View.VISIBLE
+        binding.addBTNSubmit.isEnabled = false
 
-        if (scheduleSlots.isEmpty()) {
-            SignalManager.getInstance().toast("Please add at least one time slot")
-            return
-        }
-
-        if (additionalImageUris.isEmpty()) {
-            SignalManager.getInstance().toast("At least one additional picture required")
-            return
-        }
-
-        if (selectedMainImageUri == null) {
-            SignalManager.getInstance().toast("Main picture is required")
-            return
-        }
         lifecycleScope.launch {
             try {
-                val imageUrl = selectedMainImageUri?.let { uploadImageToStorage(it) }
-                    ?: run {
-                        SignalManager.getInstance().toast("Main image is required")
-                        return@launch
-                    }
+                val imageUrl = uploadImageToStorage(mainImageUri)
 
-                var additionalImageUrls = mutableListOf<String>()
-                for (uri in additionalImageUris) {
-                    val url = uploadImageToStorage(uri, additionalFlag = true)
-                    additionalImageUrls.add(url)
-                }
+                val additionalImageUrls = additionalImageUris.map { uploadImageToStorage(it, additionalFlag = true) }
 
                 val newActivity = Activity(
                     name = activityName,
@@ -279,6 +243,10 @@ class AddItemActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("Add Activity", "Upload or save failed: ${e.message}")
                 SignalManager.getInstance().toast("Something went wrong: ${e.message}")
+            }
+            finally {
+                binding.addProgressbar.visibility = View.GONE
+                binding.addBTNSubmit.isEnabled = true
             }
         }
     }

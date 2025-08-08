@@ -46,7 +46,7 @@ class LoginActivity : AppCompatActivity() {
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
             .setAvailableProviders(providers)
-            .setTheme(R.style.Theme_Crafket)
+            .setTheme(R.style.MyFirebaseUILightTheme)
             .setLogo(R.drawable.crafket_logo)
             .build()
         signInLauncher.launch(signInIntent)
