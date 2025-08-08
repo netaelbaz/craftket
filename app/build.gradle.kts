@@ -53,7 +53,6 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.ui.auth)
-//    implementation(libs.google.firebase.auth)
     implementation(libs.firebase.database)
 
     //Glide
@@ -73,5 +72,6 @@ dependencies {
     implementation(libs.view)
     implementation(libs.androidx.viewpager2)
     implementation(libs.flexbox)
-
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.kotlinx.coroutines.core)
 }

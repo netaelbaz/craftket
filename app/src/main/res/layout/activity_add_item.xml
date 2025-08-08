@@ -333,10 +333,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Add Slot"
-                android:textSize="20sp"
+                android:textSize="@dimen/textSize"
                 android:layout_marginTop="12dp"
                 android:layout_gravity="center"
-                android:textColor="@color/textColor"
+                android:textColor="@color/black"
+                android:textStyle="bold"
                 android:backgroundTint="@color/transparent"/>
 
             <com.google.android.material.button.MaterialButton

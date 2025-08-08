@@ -35,7 +35,7 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
     private var addressCoordinates: Pair<Double, Double>? = null
     val gson = Gson()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
-    private var activityIndex: Int = -1
+    private var activityIndex: String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +53,7 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
         coroutineScope.launch {
             val json = intent.getStringExtra(Constants.BundleKeys.ACTIVITY)
             val currentActivity = gson.fromJson(json, Activity::class.java)
-            activityIndex = intent.getIntExtra(Constants.BundleKeys.ACTIVITY_INDEX, -1)
+            activityIndex = intent.getStringExtra(Constants.BundleKeys.ACTIVITY_INDEX) ?: return@launch
             val address = currentActivity.location.getFullAddress()
 
             addressCoordinates = withContext(Dispatchers.IO) {
@@ -61,7 +61,6 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             initViews(currentActivity)
-            Log.d("finished", "finish")
             hideLoading()
         }
     }
@@ -80,7 +79,7 @@ class ItemInfoActivity : AppCompatActivity(), OnMapReadyCallback {
             page.scaleY = scale
             page.scaleX = scale
         }
-        val dbRef = FirebaseDatabase.getInstance().getReference("activities").child(activityIndex.toString()).child("additionalImages")
+        val dbRef = FirebaseDatabase.getInstance().getReference("activities").child(activityIndex).child("additionalImages")
 
         dbRef.get().addOnSuccessListener { result ->
             val urls = mutableListOf<String>()

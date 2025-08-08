@@ -36,6 +36,14 @@ import com.example.craftket.utilites.SignalManager
 import com.google.android.flexbox.FlexboxLayout
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Locale
+import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import androidx.lifecycle.lifecycleScope
+import com.example.craftket.utilites.Utils.signOut
+import kotlinx.coroutines.launch
+
+
 
 class AddItemActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddItemBinding
@@ -45,9 +53,8 @@ class AddItemActivity : AppCompatActivity() {
     private var pickedEndTime: Calendar? = null
     private lateinit var mainImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
     private lateinit var additionalImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
-    private var mainImageUrl: String? = null
-    private val storageRef = FirebaseStorage.getInstance().reference
-    private var additionalImageUrls: MutableList<String> = mutableListOf()
+    private var selectedMainImageUri: Uri? = null
+    private val additionalImageUris = mutableListOf<Uri>()
     private lateinit var imageViews: List<ImageView>
     private var selectedImageIndex = -1
 
@@ -68,7 +75,9 @@ class AddItemActivity : AppCompatActivity() {
             ActivityResultContracts.PickVisualMedia()
         ) { uri: Uri? ->
             uri?.let {
-                uploadSelectedImage(it)
+                binding.addIMAGEAddMain.setImageURI(it)
+                binding.addIMAGEAddMain.setBackgroundColor(ContextCompat.getColor(this, R.color.transparent))
+                selectedMainImageUri = it
             } ?: Log.d("PhotoPicker", "No media selected")
         }
 
@@ -79,13 +88,7 @@ class AddItemActivity : AppCompatActivity() {
             uri?.let {
                 imageViews[selectedImageIndex].setImageURI(it)
                 imageViews[selectedImageIndex].setBackgroundColor(ContextCompat.getColor(this, R.color.transparent))
-                uploadImageToStorage(uri,
-                    onSuccess = { url ->
-                        additionalImageUrls.add(url)
-                    },
-                    onFailure = { e ->
-                        Log.e("Add Activity", "Upload failed: ${e.message}")
-                    }, additionalFlag = true)
+                additionalImageUris.add(it)
             }
         }
 
@@ -107,25 +110,12 @@ class AddItemActivity : AppCompatActivity() {
     }
 
 
-    private fun uploadSelectedImage(uri: Uri) {
-        binding.addIMAGEAddMain.setImageURI(uri)
-        binding.addIMAGEAddMain.setBackgroundColor(ContextCompat.getColor(this, R.color.transparent))
-
-        uploadImageToStorage(uri,
-            onSuccess = { url ->
-                mainImageUrl = url
-            },
-            onFailure = { e ->
-                Log.e("Add Activity", "Upload failed: ${e.message}")
-            }
-        )
-
-    }
-
     private fun initView() {
         binding.addBTNSubmit.setOnClickListener { addItem() }
         setupTypeButtons(ActivityType.entries.map{ it.displayName }) // Replace with your actual types
         renderLevels()
+
+        binding.addBTNSignOut.setOnClickListener {  signOut(this) }
 
         binding.scheduleREPEATCheckbox.setOnCheckedChangeListener { _, checked ->
             binding.scheduleREPEATCount.visibility = if (checked) View.VISIBLE else View.GONE
@@ -231,7 +221,7 @@ class AddItemActivity : AppCompatActivity() {
             if (view is CheckBox && view.isChecked) {
                 val level = try {
                     ActivityLevel.valueOf(view.text.toString().uppercase())
-                } catch (e: IllegalArgumentException) {
+                } catch (_: IllegalArgumentException) {
                     null
                 }
                 level?.let { selectedLevels.add(it) }
@@ -243,35 +233,54 @@ class AddItemActivity : AppCompatActivity() {
             return
         }
 
-        if (mainImageUrl == null) {
-            SignalManager.getInstance().toast("Main picture is required")
-            return
-        }
 
         if (scheduleSlots.isEmpty()) {
             SignalManager.getInstance().toast("Please add at least one time slot")
             return
         }
 
-        if (additionalImageUrls.isEmpty()) {
+        if (additionalImageUris.isEmpty()) {
             SignalManager.getInstance().toast("At least one additional picture required")
             return
         }
 
-        val newActivity = Activity(
-            name = activityName,
-            imageUrl = mainImageUrl!!,
-            field = ActivityType.valueOf(selectedType.uppercase()),
-            price = activityPrice,
-            facebookUrl = activityFacebookUrl,
-            instagramUrl = activityInstagramUrl,
-            location = activityLocation,
-            levels = selectedLevels,
-            cancelTime = activityCancelTime,
-            schedule = scheduleSlots,
-            additionalImages = additionalImageUrls
-        )
-        saveToDataBase(newActivity)
+        if (selectedMainImageUri == null) {
+            SignalManager.getInstance().toast("Main picture is required")
+            return
+        }
+        lifecycleScope.launch {
+            try {
+                val imageUrl = selectedMainImageUri?.let { uploadImageToStorage(it) }
+                    ?: run {
+                        SignalManager.getInstance().toast("Main image is required")
+                        return@launch
+                    }
+
+                var additionalImageUrls = mutableListOf<String>()
+                for (uri in additionalImageUris) {
+                    val url = uploadImageToStorage(uri, additionalFlag = true)
+                    additionalImageUrls.add(url)
+                }
+
+                val newActivity = Activity(
+                    name = activityName,
+                    imageUrl = imageUrl,
+                    field = ActivityType.valueOf(selectedType.uppercase()),
+                    price = activityPrice,
+                    facebookUrl = activityFacebookUrl,
+                    instagramUrl = activityInstagramUrl,
+                    location = activityLocation,
+                    levels = selectedLevels,
+                    cancelTime = activityCancelTime,
+                    schedule = scheduleSlots,
+                    additionalImages = additionalImageUrls
+                )
+                saveToDataBase(newActivity)
+            } catch (e: Exception) {
+                Log.e("Add Activity", "Upload or save failed: ${e.message}")
+                SignalManager.getInstance().toast("Something went wrong: ${e.message}")
+            }
+        }
     }
 
     private fun saveToDataBase(newActivity: Activity) {
@@ -287,21 +296,28 @@ class AddItemActivity : AppCompatActivity() {
             if (nameExists) {
                 SignalManager.getInstance().toast("This activity name already exists")
                 Log.e("Firebase", "Activity name already exists")
+                return@addOnSuccessListener
 
             }
-            else {
-                val nextIndex = snapshot.childrenCount.toInt()
-                dbRef.child(nextIndex.toString()).setValue(newActivity)
-                    .addOnSuccessListener {
-                        Log.d("Firebase", "Activity added at index $nextIndex")
-                        SignalManager.getInstance().toast("Added Successfully")
-                        finish()
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("Firebase", "Failed to add activity", e)
-                    }
+            val newKey = dbRef.push().key
+            if (newKey == null) {
+                Log.e("Firebase", "Failed to generate unique key")
+                SignalManager.getInstance().toast("Failed to Save activity to database")
+                return@addOnSuccessListener
             }
+            dbRef.child(newKey).setValue(newActivity)
+                .addOnSuccessListener {
+                    Log.d("Firebase", "Activity added at key id $newKey")
+                    SignalManager.getInstance().toast("Added Successfully")
+                    finish()
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firebase", "Failed to add activity", e)
+                }
 
+        }.addOnFailureListener {
+            Log.e("Firebase", "Failed to read from database", it)
+            SignalManager.getInstance().toast("Database error")
         }
     }
 
@@ -435,7 +451,8 @@ class AddItemActivity : AppCompatActivity() {
             SignalManager.getInstance().toast("Please choose start and end time")
             return
         }
-        if (pickedEndTime!!.before(pickedStartTime)) {
+        val diffMillis = pickedEndTime!!.timeInMillis - pickedStartTime!!.timeInMillis
+        if (diffMillis < 60_000) { // 60000 ms - one minute
             SignalManager.getInstance().toast("Please choose correct end time")
             return
         }
@@ -493,23 +510,24 @@ class AddItemActivity : AppCompatActivity() {
         binding.scheduleTXTCapacity.text = getString(R.string.capacity_default)
     }
 
-
-    private fun uploadImageToStorage(uri: Uri, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit, additionalFlag: Boolean = false) {
-        var fileName = "images/${System.currentTimeMillis()}.jpg"
-        if (additionalFlag) {
-            fileName = "images/additional/${System.currentTimeMillis()}.jpg"
-        }
-
-        val imageRef = storageRef.child(fileName)
-
-        imageRef.putFile(uri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    onSuccess(downloadUri.toString()) // return the downloaded url
+    suspend fun uploadImageToStorage(uri: Uri, additionalFlag: Boolean = false): String {
+        return suspendCoroutine { continuation ->
+            var fileName = "images/${System.currentTimeMillis()}.jpg"
+            if (additionalFlag) {
+                fileName = "images/additional/${System.currentTimeMillis()}.jpg"
+            }
+            val ref = FirebaseStorage.getInstance().getReference(fileName)
+            ref.putFile(uri)
+                .addOnSuccessListener {
+                    ref.downloadUrl.addOnSuccessListener { downloadUri ->
+                        continuation.resume(downloadUri.toString())
+                    }.addOnFailureListener { e ->
+                        continuation.resumeWithException(e)
+                    }
                 }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+                .addOnFailureListener { e ->
+                    continuation.resumeWithException(e)
+                }
+        }
     }
 }

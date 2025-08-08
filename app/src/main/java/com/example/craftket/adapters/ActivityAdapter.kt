@@ -8,12 +8,12 @@ import com.example.craftket.Models.Activity
 import com.example.craftket.databinding.ItemBinding
 import com.example.craftket.utilites.ImageLoader
 
-class ActivityAdapter(private val activities: MutableList<Activity>) :
+class ActivityAdapter(private val activities: MutableList<Pair<String, Activity>>) :
     RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>() {
 
     var activityCallback: ActivityCallback? = null
 
-    fun updateData(newActivities: List<Activity>) {
+    fun updateData(newActivities: List<Pair<String, Activity>>) {
         activities.clear()
         activities.addAll(newActivities)
         notifyDataSetChanged()
@@ -26,7 +26,8 @@ class ActivityAdapter(private val activities: MutableList<Activity>) :
 
     override fun getItemCount(): Int = activities.size
 
-    fun getItem(position: Int) = activities[position]
+    fun getItem(position: Int) = activities[position].second
+    fun getKey(position: Int) = activities[position].first
 
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
         with(holder) {
@@ -50,7 +51,8 @@ class ActivityAdapter(private val activities: MutableList<Activity>) :
             binding.itemBTNMoreInfo.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    activityCallback?.moreInfoClicked(getItem(position), position)
+                    val key = getKey(position)
+                    activityCallback?.moreInfoClicked(getItem(position), key)
                 }
             }
         }

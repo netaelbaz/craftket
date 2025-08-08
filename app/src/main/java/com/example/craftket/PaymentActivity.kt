@@ -44,27 +44,29 @@ class PaymentActivity : AppCompatActivity() {
 
 
     private fun initViews() {
-        val activityIndex = intent.getIntExtra(Constants.BundleKeys.ACTIVITY_INDEX, -1)
+        val activityIndex = intent.getStringExtra(Constants.BundleKeys.ACTIVITY_INDEX)
         val timeSlotIndex = intent.getIntExtra(Constants.BundleKeys.SELECTED_TIME_SLOT, -1)
-        dbRef = FirebaseDatabase.getInstance().getReference("activities").child(activityIndex.toString())
+        if (activityIndex != null) {
+            dbRef = FirebaseDatabase.getInstance().getReference("activities").child(activityIndex.toString())
 
-        dbRef.get().addOnSuccessListener { snapshot ->
-            val activity = snapshot.getValue(Activity::class.java)
-            if (activity != null && timeSlotIndex != -1) {
-                val timeSlot = activity.schedule[timeSlotIndex]
-                binding.payTXTTitle.text = activity.name
-                binding.payTXTHour.text = buildString {
-                    append(floatToHour24(timeSlot.startTime))
-                    append(" - ")
-                    append(floatToHour24(timeSlot.endTime))
+            dbRef.get().addOnSuccessListener { snapshot ->
+                val activity = snapshot.getValue(Activity::class.java)
+                if (activity != null && timeSlotIndex != -1) {
+                    val timeSlot = activity.schedule[timeSlotIndex]
+                    binding.payTXTTitle.text = activity.name
+                    binding.payTXTHour.text = buildString {
+                        append(floatToHour24(timeSlot.startTime))
+                        append(" - ")
+                        append(floatToHour24(timeSlot.endTime))
+                    }
+                    binding.payTXTDate.text = timeSlot.date
+                    binding.payTXTPrice.text = buildString {
+                        append("Total: ")
+                        append(activity.price.toString())}
                 }
-                binding.payTXTDate.text = timeSlot.date
-                binding.payTXTPrice.text = buildString {
-                    append("Total: ")
-                    append(activity.price.toString())}
+            }.addOnFailureListener {
+                Log.e("Payment activity", "failed to read from database")
             }
-        }.addOnFailureListener {
-            Log.e("Payment activity", "failed to read from database")
         }
 
         binding.payBTNSubmit.setOnClickListener {
@@ -75,6 +77,9 @@ class PaymentActivity : AppCompatActivity() {
     }
 
     private fun registerToClass(selectedTimeSlot: Int) {
+        if (selectedTimeSlot == -1) {
+            Log.e("Register Failed", "No selected time slot")
+        }
         val usersRef = dbRef.child("schedule").child(selectedTimeSlot.toString()).child("registeredUsers")
         val user = FirebaseAuth.getInstance().currentUser
         if (user!= null) {
@@ -86,11 +91,10 @@ class PaymentActivity : AppCompatActivity() {
                     usersRef.setValue(currentUsers)
                     showPaymentDialog()
                 } else {
-                    // todo: message to the user
-                    Log.d("Register", "User already registered.")
+                    Log.d("Register Failed", "User already registered.")
                 }
             }.addOnFailureListener {
-                Log.e("Register", "Failed to access database", it)
+                Log.e("Register Failed", "Failed to access database", it)
             }
         }
     }

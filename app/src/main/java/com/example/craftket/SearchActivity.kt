@@ -33,7 +33,7 @@ class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
     private lateinit var adapter: ActivityAdapter
-    private var activityList = mutableListOf<Activity>()
+    private var activityPairs = mutableListOf<Pair<String, Activity>>()
     private lateinit var citiesList: List<String>
     private lateinit var activityTypesList: List<String>
     private lateinit var filtersLauncher: ActivityResultLauncher<Intent>
@@ -56,9 +56,9 @@ class SearchActivity : AppCompatActivity() {
         binding.searchRVList.layoutManager = LinearLayoutManager(this)
         binding.searchRVList.adapter = adapter
         adapter.activityCallback = object : ActivityCallback {
-            override fun moreInfoClicked(activity: Activity, position: Int) {
+            override fun moreInfoClicked(activity: Activity, key: String) {
                 // Handle "more info" button click
-                openMoreInfo(activity, position)
+                openMoreInfo(activity, key)
             }
         }
     }
@@ -68,27 +68,36 @@ class SearchActivity : AppCompatActivity() {
         return database.getReference(path)
     }
 
+    private fun handleNoResults(result: List<Pair<String, Activity>>) {
+        if (result.isEmpty()) {
+            binding.searchTXTNoActivities.visibility = View.VISIBLE
+        } else {
+            binding.searchTXTNoActivities.visibility = View.GONE
+        }
+    }
+
 
     private fun getActivitiesFromDB() {
         val ref = getDatabaseReference("activities")
         ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                activityList = mutableListOf<Activity>()
-                for (data in dataSnapshot.children) {
-                    val activity = data.getValue(Activity::class.java)
-                    println("activity key ${data.key}")
-                    activity?.let { activityList.add(it) }
-                }
-                adapter.updateData(activityList)
+                activityPairs = dataSnapshot.children.mapNotNull { child ->
+                    val activity = child.getValue(Activity::class.java)
+                    val key = child.key
+                    if (activity != null && key != null) key to activity else null
+                }.toMutableList()
 
-                citiesList = activityList
-                    .map { it.location.city }
+                handleNoResults(activityPairs)
+                adapter.updateData(activityPairs)
+
+                citiesList = activityPairs
+                    .map { it.second.location.city }
                     .filter { it.isNotBlank() }
                     .distinct()
                     .sorted()
 
-                activityTypesList = activityList
-                    .map { it.field.displayName }
+                activityTypesList = activityPairs
+                    .map { it.second.field.displayName }
                     .filter { it.isNotBlank() }
                     .distinct()
                     .sorted()
@@ -134,11 +143,11 @@ class SearchActivity : AppCompatActivity() {
             }
     }
 
-    private fun openMoreInfo(activity: Activity, position: Int) {
+    private fun openMoreInfo(activity: Activity, key: String) {
         val intent = Intent(this, ItemInfoActivity::class.java)
         val activityAsJson = gson.toJson(activity)
         intent.putExtra(Constants.BundleKeys.ACTIVITY, activityAsJson)
-        intent.putExtra(Constants.BundleKeys.ACTIVITY_INDEX, position)
+        intent.putExtra(Constants.BundleKeys.ACTIVITY_INDEX, key)
         startActivity(intent)
     }
 
@@ -158,7 +167,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun applyFilters(filters: Filters) {
         lastUsedFilters = filters
-        val filteredList = activityList.filter { activity ->
+        val filteredPairs = activityPairs.filter { (_, activity) ->
 
             val locationMatches = filters.selectedCity.isNullOrBlank() || activity.location.city == filters.selectedCity
             val typesMatches = filters.selectedTypes.isNullOrEmpty() || filters.selectedTypes.contains(activity.field.displayName)
@@ -174,7 +183,7 @@ class SearchActivity : AppCompatActivity() {
                     try {
                         val slotDate = dateFormatter.parse(timeSlot.date)
                         slotDate != null && slotDate >= startDate && slotDate <= endDate
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         false
                     }
                 }
@@ -185,7 +194,8 @@ class SearchActivity : AppCompatActivity() {
             locationMatches && typesMatches && minPriceMatches && maxPriceMatches && dateMatches && levelMatches
         }
 
-        adapter.updateData(filteredList)
+        handleNoResults(filteredPairs)
+        adapter.updateData(filteredPairs)
 
     }
 }

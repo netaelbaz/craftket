@@ -40,13 +40,15 @@
         app:tint="#E21D1E1F"
         android:layout_below="@id/search_toolbar"/>
 
-<!--    <com.google.android.material.textfield.TextInputEditText-->
-<!--        android:id="@+id/search_INPUT_search"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:inputType="text"-->
-<!--        android:hint="search activities"-->
-<!--        android:layout_below="@id/search_BTN_signOut" />-->
+    <TextView
+        android:id="@+id/search_TXT_no_activities"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No activities found"
+        android:textSize="32sp"
+        android:layout_centerInParent="true"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_RV_list"

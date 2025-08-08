@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
 
 class ClassRegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityClassRegisterBinding
-    private var activityIndex = -1
+    private var activityIndex: String = ""
     private var selectedSlot = -1
     private var selectedButton: MaterialButton? = null
     private var user: String? = null
@@ -111,7 +111,6 @@ class ClassRegisterActivity : AppCompatActivity() {
             binding.registerTXTNoTimeSelected.visibility = View.VISIBLE
         }
         else {
-            val activityIndex = intent.getIntExtra(Constants.BundleKeys.ACTIVITY_INDEX, -1)
             val intent = Intent(this, PaymentActivity::class.java)
             intent.putExtra(Constants.BundleKeys.SELECTED_TIME_SLOT, selectedSlot )
             intent.putExtra(Constants.BundleKeys.ACTIVITY_INDEX, activityIndex )
@@ -140,10 +139,7 @@ class ClassRegisterActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-//        val json = intent.getStringExtra(Constants.BundleKeys.TIMESLOTS)
-        activityIndex = intent.getIntExtra(Constants.BundleKeys.ACTIVITY_INDEX, -1)
-//        val type = object : TypeToken<List<TimeSlot>>() {}.type
-//        val timeSlots: List<TimeSlot> = Gson().fromJson(json, type)
+        activityIndex = intent.getStringExtra(Constants.BundleKeys.ACTIVITY_INDEX) ?: return
         val formatter = DateTimeFormatter.ofPattern(Constants.Format.DATE_FORMATTER, Locale.getDefault())
         binding.registerCALENDARDates.date = System.currentTimeMillis()
 
