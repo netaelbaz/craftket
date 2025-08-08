@@ -54,8 +54,11 @@ CraftKet is a Kotlin-based Android application that serves as a platform for dis
 
 | Register Activity |  Payment Successfull  | Add Activities |
 |-------------------|-----------------------|----------------|
-| <img width="279" height="600" alt="purchase_page" src="https://github.com/user-attachments/assets/ed3e8930-d5fd-42ce-b5af-93a4bf132593" /> | <img width="280" height="600" alt="payment_successful_page" src="https://github.com/user-attachments/assets/f781a807-80e3-41ae-bfaa-ea0dea8b5b3f" /> | <img width="263" height="600" alt="add_activity_page1" src="https://github.com/user-attachments/assets/00e9f07d-b51b-45b3-9b9d-3ec4f6a982e5" />
+| <img width="279" height="600" alt="purchase_page" src="https://github.com/user-attachments/assets/ed3e8930-d5fd-42ce-b5af-93a4bf132593" /> | <img width="280" height="600" alt="payment_successful_page" src="https://github.com/user-attachments/assets/f781a807-80e3-41ae-bfaa-ea0dea8b5b3f" /> | <div style="display: flex; gap: 10px;">
+<img width="263" height="600" alt="add_activity_page1" src="https://github.com/user-attachments/assets/00e9f07d-b51b-45b3-9b9d-3ec4f6a982e5" /> 
 <img width="385" height="600" alt="add_activity_page2" src="https://github.com/user-attachments/assets/1a0447ad-63f9-4121-844a-03bf8e1cbb46" />
+</div>
+
 
 
 
